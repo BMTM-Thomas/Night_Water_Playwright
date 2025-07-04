@@ -1,0 +1,15 @@
+__pycache__
+User Data Directory
+\\Users\\n02-19\\Library\\Application Support\\Google\\Chrome\\
+\\Users\\Thomas\\Library\\Application Support\\Google\\Chrome\\
+/Users/n02-19/Desktop/Night_Water/\Users\Thomas\Library\Application Support\Google\Chrome\
+晚班水位/*.png
+.DS_Store
+**/.DS_Store
+.vscode
+.venv
+watermelon
+chrome_Extension
+image_verification.py
+mongodb_api_key.txt
+openai_api_key.txt
