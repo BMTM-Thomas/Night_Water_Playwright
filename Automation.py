@@ -1,4 +1,5 @@
 import re
+import os
 import cv2
 import time
 import random
@@ -12,6 +13,7 @@ from List_Zentao import *
 from bson import ObjectId 
 from List_Noctool import *
 from selenium import webdriver  
+from dotenv import load_dotenv
 from pymongo import MongoClient
 from PIL import ImageGrab, Image
 from bson.objectid import ObjectId  
@@ -133,10 +135,10 @@ class Automation:
     @staticmethod
     def mongodb_atlas():
         
-        # Read MongoDB API Key
-        with open('mongodb_api_key.txt', 'r', encoding='utf-8') as f:
-            mongodb_api_key = f.read().strip()
-
+        # Call MongoDB Atlas API Key
+        load_dotenv()
+        mongodb_api_key = os.getenv("MONGODB_API_KEY")
+        
         # MongoDB Atlas (Server)
         client = MongoClient(mongodb_api_key,tlsCAFile=certifi.where())
         # Access Database
@@ -2540,7 +2542,6 @@ class Zentao_Noctool(Automation):
 
                     # delay 0.5second
                     page.wait_for_timeout(500)
-
 
 # Uncomment the following lines to run the automation scripts
 

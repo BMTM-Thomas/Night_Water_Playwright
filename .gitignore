@@ -10,6 +10,6 @@ User Data Directory
 .venv
 watermelon
 chrome_Extension
-image_verification.py
 mongodb_api_key.txt
 openai_api_key.txt
+.env
