@@ -2,14 +2,17 @@ import re
 import os
 import cv2
 import time
+import base64
 import random
-import logging
 import certifi
+import logging
 import pyperclip
 import pyautogui
-import numpy as np
 import pytesseract
+import numpy as np
+from pathlib import Path
 from List_Zentao import *
+from openai import OpenAI
 from bson import ObjectId 
 from List_Noctool import *
 from selenium import webdriver  
@@ -20,7 +23,69 @@ from bson.objectid import ObjectId
 from List_Aliyun_DDCaptcha import *   
 from AppKit import NSPasteboard, NSPasteboardTypePNG
 from playwright.sync_api import sync_playwright, expect
-                                                              
+
+# OpenAI API
+class MyChatGPT:
+    """OpenAI GPT-4o API Client""" 
+
+    # OpenAI API Client Initialization
+    def __init__(self):
+        load_dotenv()
+        api_key = os.getenv("OPENAI_API_KEY")
+        self.client = OpenAI(api_key=api_key)
+
+    # Convert image to base64 
+    def image_file_to_base64(self, path):
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+
+    # Step 1: Ask GPT-4o to analyze the image and read instruction 
+    def ask_gpt_about_image(self, image_path, prompt_text):
+        base64_img = self.image_file_to_base64(image_path)
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        { "type": "text", "text": prompt_text },
+                        { "type": "image_url", "image_url": { "url": f"data:image/png;base64,{base64_img}" } }
+                    ]
+                }
+            ],
+            max_tokens=300
+        )
+        return response.choices[0].message.content.strip()
+
+    # Step 2: Auto click tiles based on GPT response
+    def extract_positions_and_click(response_text):
+
+        # Random Time Sleep
+        random_Sleep = random.uniform(0.5, 1)  # Random sleep between 0.5 to 1 second
+
+        GRID_MAP = {
+            "1-1": (703,441),
+            "1-2": (787,435),
+            "1-3": (938,427),
+            "2-1": (685,559),
+            "2-2": (789,534),
+            "2-3": (947,574),
+        }
+        
+        positions = re.findall(r"\d-\d", response_text)
+        for pos in positions:
+            if pos in GRID_MAP:
+                x, y = GRID_MAP[pos]
+                print(f"Clicking {pos} at ({x}, {y})")
+                # Random time sleep between 0.5 to 1 second
+                time.sleep(random_Sleep)
+                pyautogui.click(x, y)  
+                # Random time sleep between 0.5 to 1 second
+                time.sleep(random_Sleep)
+            else:
+                print(f"[!] Unknown position: {pos}")
+
 # Logging Setup
 class Logger:
     """Enhanced logging setup"""
@@ -654,7 +719,7 @@ class Aliyun(Automation, JavaScript_Style):
                 
                 # wait for "RAM 用户登录" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "OK!")
 
                 # Wait for lastpass vault button image to appear
@@ -683,13 +748,13 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Click "下一步" 
                 __class__.red_Check(page2.locator("//button[@type='button']"), "Wait '下一步'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//button[@type='button']"), "OK! Click 下一步")
                 page2.locator('//button[@type="button"]').click()
                 
                 # Wait for "*用户密码" appear
                 __class__.red_Check(page2.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//label[contains(text(),'用户密码')]"), "OK!")
 
                 # delay 0.3second
@@ -697,21 +762,21 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Click “登入”
                 __class__.red_Check(page2.locator("//button[@type='submit']"), "Wait '*用户密码'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//button[@type='submit']"), "OK!")
                 page2.locator('//button[@type="submit"]').click()
                 
                 # delay 0.3second
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
 
                 # Wait for "验证安全邮箱" appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "OK!")
 
                 # Click "获取验证码" 
                 __class__.red_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "Wait '验证安全邮箱'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "OK!")
                 page2.locator('//span[contains(text(),"获取验证码")]').click()
 
@@ -773,7 +838,7 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "验证安全邮箱" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "OK!")
 
                 # Click "x mark"
@@ -791,7 +856,7 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "正常" appear
                 __class__.red_Check(page2.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//span[contains(text(),'正常')]"), "OK!")
 
                 # Mouse Click
@@ -813,7 +878,7 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "RAM 用户" to be appear
                 __class__.red_Check(page2.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait 'RAM 用户'")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
 
                 # delay 0.3second
@@ -821,7 +886,7 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # hover to menu
                 __class__.red_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                page.wait_for_timeout(300)
+                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
                 page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
@@ -831,14 +896,14 @@ class Aliyun(Automation, JavaScript_Style):
                         # Wait for "安全管控" to be appear
                         expect(page2.locator("//span[contains(text(),'安全管控')]")).to_be_visible(timeout = 1000) 
                         __class__.red_Check(page2.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
-                        page.wait_for_timeout(300)
+                        page2.wait_for_timeout(300)
                         __class__.green_Check(page2.locator("//span[contains(text(),'安全管控')]"), "OK!")
                         break
                     except:
                         # Mouse Click
                         pyautogui.click(x=1267, y=217)
                         # delay 0.3second
-                        page.wait_for_timeout(300)
+                        page2.wait_for_timeout(300)
                         # hover to menu
                         page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
@@ -1028,10 +1093,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Check if overdue payment
                 try:
+                    overdue = page2.locator("//p[@ng-repeat='item in vm.topTipsArr']").wait_for(timeout=2000)
                     __class__.red_Check(page2.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
                     __class__.green_Check(page2.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
-                    # page2.wait_for_selector("//p[@ng-repeat='item in vm.topTipsArr']", timeout=1000)
-                    overdue = page2.locator("//p[@ng-repeat='item in vm.topTipsArr']").text_content()
                     print(f"{ven_id}= ", overdue)   
                 except:
                     pass
@@ -1040,9 +1104,9 @@ class Aliyun(Automation, JavaScript_Style):
                 ImageGrab.grab().save(f'./watermelon/{ven_id}.png')
                 
                 # Wait for "RAM 用户" to be appear
-                __class__.red_Check(page2.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait 'RAM 用户'")
+                __class__.red_Check(page2.locator("//div[@class='sc-taltu8-3 CB-cquEbr']"), "Wait 'RAM 用户'")
                 page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
+                __class__.green_Check(page2.locator("//div[@class='sc-taltu8-3 CB-cquEbr']"), "OK!")
 
                 # delay 0.3second
                 page2.wait_for_timeout(300)
@@ -1144,6 +1208,37 @@ class Tencent(Automation):
 
             # Click "登录" to Login
             page.locator("//span[@class='accsys-tp-btn__text'][contains(text(),'登录')]").click()
+     
+
+            # Check whether verification image is appear
+            try:
+                ## Get iframe
+                iframe = page.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
+
+                # wait for "image验证" to be appear
+                iframe.locator("//span[@id='pHeaderTitle']").wait_for(timeout=0) 
+                expect(iframe.locator("//span[@id='pHeaderTitle']")).to_have_text("选择最符合描述的图片", timeout=1500)
+            
+                # delay 4 seconds
+                page.wait_for_timeout(4000)
+
+                # Screenshot (region= x, y, width, height)
+                screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))  # Adjust region as needed
+                screenshot.save('./晚班水位/ven182.png')
+
+                # Use MyChatGPT to analyze the image
+                gpt_client = MyChatGPT()
+                prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
+                response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
+                print("GPT Response:", response_text)
+
+                # Click based on response
+                MyChatGPT.extract_positions_and_click(response_text)
+
+                # Button click “验证确定”
+                iframe.locator("//button[@id='verifyBtn']").click()
+            except:
+                pass
 
             # delay 0.5second
             page.wait_for_timeout(500)
@@ -1184,7 +1279,7 @@ class Tencent(Automation):
             page.wait_for_timeout(500)
 
             # Screenshot
-            ImageGrab.grab().save('./晚班水位/ven322.png')
+            ImageGrab.grab().save('./晚班水位/ven182.png')
 
             # delay 0.5second
             page.wait_for_timeout(500)
@@ -2164,6 +2259,7 @@ class Other_Cloud(Automation):
                 # Screenshot
                 ImageGrab.grab().save('./晚班水位/ven326.png')
                 
+                # delay 0.5 second
                 time.sleep(0.5)
 
                 driver.quit()
@@ -2546,11 +2642,11 @@ class Zentao_Noctool(Automation):
 # Uncomment the following lines to run the automation scripts
 
 # Aliyun
-Aliyun.aliyun_CN()
-Aliyun.aliyun_INT()
-Aliyun.watermelon_aliyun_INT()
-Aliyun.aliyun_INT_RAM()
-Aliyun.watermelon_aliyun_INT_RAM()
+# Aliyun.aliyun_CN()
+# Aliyun.aliyun_INT()
+# Aliyun.watermelon_aliyun_INT()
+# Aliyun.aliyun_INT_RAM()
+# Aliyun.watermelon_aliyun_INT_RAM()
 
 # # Tencent
 Tencent.tencent_CN()

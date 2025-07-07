@@ -51,7 +51,7 @@ sms_ID = ("ven326",)
 S211_ID = ("ven196",)  
 
 # byteplus
-byteplus_ID = ("ven467",)
+byteplus_ID = ("ven434", "ven467",)
 
 all_Cloud_ID = (
                     aliyun_CN_ID,
@@ -215,6 +215,7 @@ S211_MONGODB = (
 
 #byteplus
 byteplus_MONGODB = (
+              "686b12517719599c9f228559", # ven434 bytePlus
               "67738a58cbe95821ef0efd24", # ven467 bytePlus
             )
 

@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 import pyautogui
 import re
+import time
+import random
 
 # === Load API Key ===
 load_dotenv()
@@ -39,6 +41,10 @@ def ask_gpt_about_image(image_path, prompt_text):
 
 # === Step 2 (Optional): Auto click tiles based on GPT response ===
 def extract_positions_and_click(response_text):
+
+    # Random Time Sleep
+    random_Sleep = random.uniform(0.5, 1)  # Random sleep between 0.5 to 1 second
+
     GRID_MAP = {
         "1-1": (703,441),
         "1-2": (787,435),
@@ -53,14 +59,16 @@ def extract_positions_and_click(response_text):
         if pos in GRID_MAP:
             x, y = GRID_MAP[pos]
             print(f"Clicking {pos} at ({x}, {y})")
+            time.sleep(random_Sleep)
             pyautogui.click(x, y)  # ← instant click at coordinate
+            time.sleep(random_Sleep)
         else:
             print(f"[!] Unknown position: {pos}")
 
 # === MAIN ===
 
 if __name__ == "__main__":
-    image_path = Path("/Users/n02-19/Desktop/demo2.png").absolute()
+    image_path = Path("/Users/n02-19/Desktop/demo4.png").absolute()
 
     # ✅ Smart instruction-aware prompt
     prompt = (
