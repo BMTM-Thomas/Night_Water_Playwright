@@ -132,7 +132,7 @@ tencent_CN_MONGODB = (
 
 # 腾讯云 子用户登录
 tencent_CN_SUB_MONGODB = (
-              "660515a0f9328322046690b3", # ven322
+              "67a10f19d5f05d3aa4ccc37d", # ven322
             )
 
 # 腾讯云【国际站】

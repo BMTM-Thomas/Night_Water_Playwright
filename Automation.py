@@ -10,7 +10,6 @@ import pyperclip
 import pyautogui
 import pytesseract
 import numpy as np
-from pathlib import Path
 from List_Zentao import *
 from openai import OpenAI
 from bson import ObjectId 
@@ -278,7 +277,6 @@ class Aliyun(Automation, JavaScript_Style):
 
                 ## Wait for "简体中文" to be appear
                 __class__.red_Check(iframe.locator("//button[contains(text(),'立即登录')]"), "Wait '立即登录'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(iframe.locator("//button[contains(text(),'立即登录')]"), "OK! Ready to Click !")
 
                 # click 账号登录 lastpass extension
@@ -313,19 +311,16 @@ class Aliyun(Automation, JavaScript_Style):
                 if ven_id == "ven338":
                     # Wait for "简体中文" 
                     __class__.red_Check(page.locator("//span[@class='sc-jWgTtR leLjBy'][contains(text(),'可用额度')]"), "Wait '可用额度'")
-                    page.wait_for_timeout(300)
                     __class__.green_Check(page.locator("//span[@class='sc-jWgTtR leLjBy'][contains(text(),'可用额度')]"), "OK!")
                     
                     # Extract Credit
                     __class__.red_Check(page.locator("//span[@class='amount']//span[1]"), "Wait '可用额度'")
-                    page.wait_for_timeout(300)
                     __class__.green_Check(page.locator("//span[@class='amount']//span[1]"), "Extract Credit")
                     credit = page.locator("//span[@class='amount']//span[1]").text_content() 
 
                 else:
                     # Wait for "账户可用额度"
                     __class__.red_Check(page.locator("//div[@class='label'][contains(text(),'账户可用额度')]"), "Wait '账户可用额度'")
-                    page.wait_for_timeout(300)
                     __class__.green_Check(page.locator("//div[@class='label'][contains(text(),'账户可用额度')]"), "OK!")
 
                     try:
@@ -336,10 +331,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                     # Extract Credit
                     __class__.red_Check(page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']"), "Wait '账户可用额度'")
-                    credit = page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']").text_content() 
                     __class__.green_Check(page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']"), "Extract Credit!")
-                    page.wait_for_timeout(300)
-
+                    credit = page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']").text_content() 
+    
                 # Replace
                 credit = credit.replace('¥ ', '')
                 credit = credit.replace(',', '')
@@ -353,12 +347,10 @@ class Aliyun(Automation, JavaScript_Style):
                 
                 # Wait for "主账号" to be appear
                 __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
                 
                 # hover to menu
                 __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
                 page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
@@ -368,7 +360,6 @@ class Aliyun(Automation, JavaScript_Style):
                         # Wait for "权限与安全" to be appear
                         page.locator("//span[contains(text(),'权限与安全')]").wait_for(timeout=1000) 
                         __class__.red_Check(page.locator("//span[contains(text(),'权限与安全')]"), "Wait '权限与安全'")
-                        page.wait_for_timeout(300)
                         __class__.green_Check(page.locator("//span[contains(text(),'权限与安全')]"), "OK!")
                         break
                     except:
@@ -378,7 +369,6 @@ class Aliyun(Automation, JavaScript_Style):
                         page.wait_for_timeout(500)
                         # hover to menu
                         __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
-                        page.wait_for_timeout(300)
                         __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
                         page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
@@ -390,7 +380,6 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Click "退出登录" Logout
                 __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                page.wait_for_timeout(500)
                 __class__.green_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
                 page.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
@@ -416,20 +405,29 @@ class Aliyun(Automation, JavaScript_Style):
             # Open a new browser page
             page = browser.pages[0] 
             page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview", wait_until="domcontentloaded")
+            
+            # if is "RAM 用户登录" then click "主账号登录", else skip
+            try:
+                if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
+                    # Click "主账号登录"
+                    page.locator("//span[contains(text(),'主账号登录')]").click()
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+                    # page go to a link
+                    page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home")
+            except:
+                pass
 
             for ven_id in aliyun_INT_ID:
-
                 ## Get iframe
                 iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
 
                 # Wait for "简体中文" to be appear
                 __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "OK!")
 
                 ## Wait for "登录" to be appear
                 __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '简体中文'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(iframe.locator("//input[@id='fm-login-submit']"), "Ready to Click!")
                 
                 # click lastpass extension       
@@ -454,39 +452,41 @@ class Aliyun(Automation, JavaScript_Style):
                 ## Click "登录" to Login
                 iframe.locator('#fm-login-submit').click()
                 
-                # delay 2seconds
-                page.wait_for_timeout(2000)
+                # delay 3seconds
+                page.wait_for_timeout(3000)
 
                 # If Drag and Drop Appear
                 while True:
-                    # one means image found, else will error and stop
+                    #  if image found do something, else will error and stop
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
                         pyautogui.moveTo(random.choice(ali_intl_drag), duration=0.13)
                         pyautogui.dragTo(random.choice(ali_intl_drop), button='left', duration=0.13)
+                        print(ali_intl_drag, ali_intl_drop)
 
-                        # delay 3seconds
+                        # # delay 3seconds
                         page.wait_for_timeout(3000)
-
+    
                         # if '登录阿里云账号' is there, means drag and drop failed
                         try:
                             if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
                                 # Mouse Click
                                 pyautogui.click(x=1113, y=567)
+                                # delay 1second
+                                page.wait_for_timeout(1000)
                         except:
                             pass
                     else:
                         break
-
+         
                 # Wait "正常" to be appear
                 __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("//span[contains(text(),'正常')]"), "OK!")
                 
                 # Extract Credit
-                credit = page.locator("//div[@class='ng-binding']").text_content()
+                __class__.red_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit!")
                 __class__.green_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit!")
-                page.wait_for_timeout(300)
-
+                credit = page.locator("//div[@class='ng-binding']").text_content()
+ 
                 # Replace
                 credit = credit.replace(' USD', '')
 
@@ -500,24 +500,22 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for "主账号" to be appear
                 page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
                 __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
                 
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 0.3second
+                page.wait_for_timeout(300)
 
                 # hover to menu
-                page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+                __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
                 __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                page.wait_for_timeout(300)
-                
+                page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+
                 # if hover menu doesnt appear, rehover again
                 while True:
                     try:
                         # Wait for "安全设置" to be appear
                         expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
                         __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
-                        page.wait_for_timeout(300)
                         __class__.green_Check(page.locator("//span[contains(text(),'安全设置')]"), "OK!")
                         break
                     except:
@@ -528,15 +526,14 @@ class Aliyun(Automation, JavaScript_Style):
                         # hover to menu
                         page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 0.3second
+                page.wait_for_timeout(300)
 
                 # Screenshot
                 ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
 
                 # Click "退出登录" Logout
                 __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
                 page.locator("//a[contains(text(),'退出登录')]").click(force=True)
                 
@@ -557,7 +554,7 @@ class Aliyun(Automation, JavaScript_Style):
 
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
-                if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=1000):
+                if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
                     # Click "主账号登录"
                     page.locator("//span[contains(text(),'主账号登录')]").click()
                     # delay 0.5second
@@ -569,17 +566,17 @@ class Aliyun(Automation, JavaScript_Style):
 
             for ven_id in watermelon_aliyun_INT_ID:
             
-                 ## Get iframe
+                ## Get iframe
                 iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
+                # iframe2 = page.frame_locator("iframe#alibaba-login-box") \
+                #             .frame_locator("iframe#baxia-dialog-content")
 
                 # Wait for "简体中文" to be appear
                 __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "OK!")
 
                 ## Wait for "登录" to be appear
                 __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '简体中文'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(iframe.locator("//input[@id='fm-login-submit']"), "Ready to Click!")
                 
                 # click lastpass extension       
@@ -609,27 +606,28 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # If Drag and Drop Appear
                 while True:
-                    # one means image found, else will error and stop
+                    #  if image found do something, else will error and stop
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
                         pyautogui.moveTo(random.choice(ali_intl_drag), duration=0.13)
                         pyautogui.dragTo(random.choice(ali_intl_drop), button='left', duration=0.13)
 
-                        # delay 3seconds
+                        # # delay 3seconds
                         page.wait_for_timeout(3000)
-
+    
                         # if '登录阿里云账号' is there, means drag and drop failed
                         try:
                             if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
                                 # Mouse Click
                                 pyautogui.click(x=1113, y=567)
+                                # delay 1second
+                                page.wait_for_timeout(1000)
                         except:
                             pass
                     else:
                         break
-
+                
                 # Wait "VISA Logo" to be appear
                 __class__.red_Check(page.locator("//span[@class='payment-cardrand-visa']"), "Wait 'VISA LOGO APPEAR'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("//span[@class='payment-cardrand-visa']"), "OK!")
 
                 # Check if overdue payment
@@ -646,13 +644,12 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for "主账号" to be appear
                 page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
                 __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
 
                 # hover to menu
-                page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+                __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
                 __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                page.wait_for_timeout(300)
+                page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # if hover menu doesnt appear, rehover again
                 while True:
@@ -660,7 +657,6 @@ class Aliyun(Automation, JavaScript_Style):
                         # Wait for "安全设置" to be appear
                         expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
                         __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
-                        page.wait_for_timeout(300)
                         __class__.green_Check(page.locator("//span[contains(text(),'安全设置')]"), "OK!")
                         break
                     except:
@@ -679,12 +675,11 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Click "退出登录" Logout
                 __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                page.wait_for_timeout(300)
                 __class__.green_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
                 page.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 3seconds
+                page.wait_for_timeout(3000)
 
     # Aliyun 国际版【RAM】    # page = gmail, page2 = alibaba
     @staticmethod
@@ -1210,7 +1205,7 @@ class Tencent(Automation):
             page.locator("//span[@class='accsys-tp-btn__text'][contains(text(),'登录')]").click()
      
 
-            # Check whether verification image is appear
+            # Check whether verification image is appear, if no skip
             try:
                 ## Get iframe
                 iframe = page.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
@@ -1555,7 +1550,7 @@ class Tencent(Automation):
                 credit = credit.strip()
 
                 # MongoDB Update Data
-                mangos_id = {'_id': ObjectId(tencent_INT_MONGODB[m_id])}
+                mangos_id = {'_id': ObjectId(tencent_INT_CAM_MONGODB[m_id])}
                 collection.update_one(mangos_id, {"$set": {"Credit": credit}})
                 print(f"{ven_id}= {credit}")
                 # mongdb+id +1
@@ -2055,7 +2050,13 @@ class Other_Cloud(Automation):
                     pass
                 
                 # wait for "邮箱登录" to be appear
-                page2.locator("//span[@class='login-nav-btn data-active']").wait_for(timeout=0)  
+                page2.locator("//span[@class='login-nav-btn']").wait_for(timeout=0)  
+
+                # delay second
+                page2.wait_for_timeout(1000)
+
+                # Click "请输入邮箱验证码" to get 验证码
+                page2.locator('//span[@placeholder="请输入邮箱验证码"]').click() 
 
                 # delay 0.5second
                 page2.wait_for_timeout(500)
@@ -2067,7 +2068,7 @@ class Other_Cloud(Automation):
                 page2.wait_for_timeout(500)
 
                 # Click "请输入邮箱验证码" to get 验证码
-                page2.locator("//span[@placeholder='请输入邮箱验证码']").click() 
+                page2.locator('//span[@placeholder="请输入邮箱验证码"]').click() 
 
                 # wait for "操作提示" to be appear
                 page2.locator("//div[@class='layui-layer-title']").wait_for(timeout=0) 
@@ -2163,6 +2164,9 @@ class Other_Cloud(Automation):
 
                 # delay 0.5second
                 page2.wait_for_timeout(500)
+
+                # Mouse Click
+                pyautogui.click(1015,323)
 
                 # Extract Credit
                 credit = page2.locator("//div[@class='kyye zjxx-item']").text_content()
@@ -2648,26 +2652,26 @@ class Zentao_Noctool(Automation):
 # Aliyun.aliyun_INT_RAM()
 # Aliyun.watermelon_aliyun_INT_RAM()
 
-# # Tencent
-Tencent.tencent_CN()
-Tencent.tencent_CN_SUB()
-Tencent.tencent_INT()
-Tencent.tencent_INT_CAM()
-Tencent.tencent_ven295()   
+# Tencent
+# Tencent.tencent_CN()
+# Tencent.tencent_CN_SUB()
+# Tencent.tencent_INT()
+# Tencent.tencent_INT_CAM()
+# Tencent.tencent_ven295()   
 
 # Huawei
-Huawei.huawei_OPSADMIN()
-Huawei.huawei()
+# Huawei.huawei_OPSADMIN()
+# Huawei.huawei()
 
 # Ucloud
-Ucloud.ucloud()
+# Ucloud.ucloud()
 
 # Other
-Other_Cloud.gname()
-driver = Selenium_Automation.chrome()
-Other_Cloud.sms_man(driver)
-Other_Cloud.s211()
-Other_Cloud.byteplus()
+# Other_Cloud.gname()
+# driver = Selenium_Automation.chrome()
+# Other_Cloud.sms_man(driver)
+# Other_Cloud.s211()
+# Other_Cloud.byteplus()
 
 # Zentao & Noctool
 # Zentao_Noctool.zentaowater()
