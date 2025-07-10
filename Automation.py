@@ -58,7 +58,7 @@ class MyChatGPT:
         return response.choices[0].message.content.strip()
 
     # Step 2: Auto click tiles based on GPT response
-    def extract_positions_and_click(response_text):
+    def extract_positions_and_click(self, response_text):
 
         # Random Time Sleep
         random_Sleep = random.uniform(0.5, 1)  # Random sleep between 0.5 to 1 second
@@ -224,17 +224,18 @@ class Automation:
                 "--disable-popup-blocking",
                 "--disable-gpu",
                 "--disable-dev-shm-usage",
+                "--disable-logging", 
                 "--no-sandbox",
                 "--start-maximized",
                 "--no-default-browser-check",
                 "--no-first-run",
                 "--hide-crash-restore-bubble",
                 "--disable-web-security",
-                "--allow-running-insecure-content"
+                "--allow-running-insecure-content",
             ],
             no_viewport=True,
+            locale="en-US",
         )
-        
         return browser
 
 # Aliyun Automation
@@ -255,7 +256,7 @@ class Aliyun(Automation, JavaScript_Style):
             collection = __class__.mongodb_atlas()
 
             # Open a new browser page
-            page = browser.pages[0] 
+            page = browser.pages[0] if browser.pages else browser.new_page()
             page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home", wait_until="domcontentloaded", timeout= 0)
             
             # if is "RAM 用户登录" then click "主账号登录", else skip
@@ -271,7 +272,7 @@ class Aliyun(Automation, JavaScript_Style):
                 pass
  
             for ven_id in aliyun_CN_ID:
-
+                
                 ## Get iframe
                 iframe = page.frame_locator("//div[@id='alibaba-login-iframe']//iframe[@id='alibaba-login-box']")
 
