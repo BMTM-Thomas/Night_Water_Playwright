@@ -1,0 +1,38 @@
+  # Chrome CDP
+    @staticmethod
+    def chrome_CDP():
+        # Step 1: Start Chrome normally
+        subprocess.Popen([
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "--remote-debugging-port=9222",
+            "--user-data-dir=/tmp/real-chrome-profile",
+            "--no-first-run",
+            "--no-default-browser-check",
+        ])
+
+        print("Chrome launched. Waiting...")
+
+        # Step 2: Poll loop (simulate script work)
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            print("Cleaning up Chrome...")
+            Aliyun.kill_my_chrome()
+
+
+
+
+
+    @staticmethod   
+    def kill_my_chrome():
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                if proc.info['cmdline'] and "--user-data-dir=/tmp/real-chrome-profile" in ' '.join(proc.info['cmdline']):
+                    print(f"Killing Chrome PID: {proc.pid}")
+                    proc.kill()
+            except Exception:
+                continue
+        

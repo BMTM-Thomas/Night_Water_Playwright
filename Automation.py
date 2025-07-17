@@ -2,12 +2,17 @@ import re
 import os
 import cv2
 import time
+import atexit
+import signal
+import psutil
 import base64
 import random
 import certifi
 import logging
-import pyperclip
+import requests
 import pyautogui
+import pyperclip
+import subprocess
 import pytesseract
 import numpy as np
 from List_Zentao import *
@@ -115,7 +120,7 @@ class Logger:
         
         return logger
 
-# Javascript
+# Javascript element color
 class JavaScript_Style:
 
     @staticmethod
@@ -162,6 +167,25 @@ class JavaScript_Style:
                 }}
             }}
         """)
+        
+    @staticmethod
+    def mouse_red_dot(page, x, y):
+
+        page.evaluate("""
+            ([x, y]) => {
+                let el = document.createElement('div');
+                el.style.position = 'absolute';
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.width = '20px';
+                el.style.height = '20px';
+                el.style.background = 'red';
+                el.style.borderRadius = '50%';
+                el.style.zIndex = 9999;
+                el.style.pointerEvents = 'none';
+                document.body.appendChild(el);
+            }
+        """, [x, y])
 
 # Selenium Automation Settings
 class Selenium_Automation:
@@ -209,8 +233,51 @@ class Automation:
         db = client["Thomas"]
         # Access Collection
         return db["Night_Database_2"]
+    
+        # Wait for Chrome CDP to be ready
+    
+    # Chrome CDP
+    @classmethod
+    def chrome_CDP(cls):
+        # Step 1: Start Chrome normally
+        subprocess.Popen([
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "--remote-debugging-port=9222",
+            "--user-data-dir=/Users/n02-19/PlaywrightProfile",
+            "--disable-session-crashed-bubble",
+            "--no-first-run",
+            "--no-default-browser-check",
+            f"--disable-extensions-except={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
+            f"--load-extension={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
+        ])
 
-    # Chromium Browser
+        print("Chrome launched. Waiting...")
+
+        # Register cleanup / Fix chrome pop up Restore. make it close cleanly
+        def cleanup():
+            try:
+                print("Gracefully terminating Chrome...")
+                cls.chrome_proc.terminate()
+            except Exception as e:
+                print(f"Error terminating Chrome: {e}")
+
+        atexit.register(cleanup)
+
+    # Wait for Chrome CDP to be ready
+    @staticmethod
+    def wait_for_cdp_ready(timeout=10):
+        """Wait until Chrome CDP is ready at http://localhost:9222/json"""
+        for _ in range(timeout):
+            try:
+                res = requests.get("http://localhost:9222/json")
+                if res.status_code == 200:
+                    return True
+            except:
+                pass
+            time.sleep(1)
+        raise RuntimeError("Chrome CDP is not ready after waiting.")
+
+    # Chromium Browser (def chromium can delete if no use)
     @classmethod
     def chromium(cls, p):
         browser = p.chromium.launch_persistent_context(
@@ -241,22 +308,36 @@ class Automation:
 # Aliyun Automation
 class Aliyun(Automation, JavaScript_Style):
 
+    # Drag n Drop Random Number
+    @classmethod
+    def drag_random(cls, x_drag_min, x_drag_max):
+        random_x = random.randint(x_drag_min, x_drag_max)
+        pyautogui.moveTo(random_x, button='left', duration=0.13)
+    @classmethod
+    def drop_random(cls, y_drop_min, y_drop_max):
+        random_y = random.randint(y_drop_min, y_drop_max)
+        pyautogui.dragTo(random_y, button='left', duration=0.13)    
+
     # Aliyun 中国站
-    @staticmethod
-    def aliyun_CN():
+    @classmethod
+    def aliyun_CN(cls):
         with sync_playwright() as p:  
-            
+   
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            collection = cls.mongodb_atlas()
+
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
 
             # Open a new browser page
-            page = browser.pages[0] if browser.pages else browser.new_page()
+            page = context.pages[0] if context.pages else context.new_page()
             page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home", wait_until="domcontentloaded", timeout= 0)
             
             # if is "RAM 用户登录" then click "主账号登录", else skip
@@ -281,14 +362,14 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.green_Check(iframe.locator("//button[contains(text(),'立即登录')]"), "OK! Ready to Click !")
 
                 # click 账号登录 lastpass extension
-                pyautogui.click(x=1096, y=393)
+                pyautogui.click(x=1326, y=383)
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 pyautogui.click(x=1345, y=384)
 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=62)
-
+  
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
@@ -389,22 +470,29 @@ class Aliyun(Automation, JavaScript_Style):
 
                 page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home", wait_until="domcontentloaded", timeout= 0)
 
+                # delay 3seconds
+                page.wait_for_timeout(2000)
+    
     # Aliyun 国际站
-    @staticmethod
-    def aliyun_INT():
+    @classmethod
+    def aliyun_INT(cls):
         with sync_playwright() as p: 
             
             # MongoDB ID
             m_id = 0
 
-            # Lauch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            collection = cls.mongodb_atlas()
+
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
 
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] if context.pages else context.new_page()
             page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview", wait_until="domcontentloaded")
             
             # if is "RAM 用户登录" then click "主账号登录", else skip
@@ -462,7 +550,6 @@ class Aliyun(Automation, JavaScript_Style):
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
                         pyautogui.moveTo(random.choice(ali_intl_drag), duration=0.13)
                         pyautogui.dragTo(random.choice(ali_intl_drop), button='left', duration=0.13)
-                        print(ali_intl_drag, ali_intl_drop)
 
                         # # delay 3seconds
                         page.wait_for_timeout(3000)
@@ -542,15 +629,19 @@ class Aliyun(Automation, JavaScript_Style):
                 page.wait_for_timeout(500)
 
     # Watermelon Aliyun 国际站
-    @staticmethod
-    def watermelon_aliyun_INT():
+    @classmethod
+    def watermelon_aliyun_INT(cls):
         with sync_playwright() as p: 
                     
-            # Lauch Chromium
-            browser = __class__.chromium(p)
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
 
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] if context.pages else context.new_page()
             page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview", wait_until="domcontentloaded")
 
             # if is "RAM 用户登录" then click "主账号登录", else skip
@@ -609,10 +700,14 @@ class Aliyun(Automation, JavaScript_Style):
                 while True:
                     #  if image found do something, else will error and stop
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-                        pyautogui.moveTo(random.choice(ali_intl_drag), duration=0.13)
-                        pyautogui.dragTo(random.choice(ali_intl_drop), button='left', duration=0.13)
+                    
+                        # drag X between 985-1000
+                        cls.drag_random(985,1000)
+                        # drop Y between 550-580
+                        cls.drop_random(550,580) 
+                        print(cls.move_random(), cls.drag_random())
 
-                        # # delay 3seconds
+                        # delay 3seconds
                         page.wait_for_timeout(3000)
     
                         # if '登录阿里云账号' is there, means drag and drop failed
@@ -683,21 +778,25 @@ class Aliyun(Automation, JavaScript_Style):
                 page.wait_for_timeout(3000)
 
     # Aliyun 国际版【RAM】    # page = gmail, page2 = alibaba
-    @staticmethod
-    def aliyun_INT_RAM():
+    @classmethod
+    def aliyun_INT_RAM(cls):
         with sync_playwright() as p: 
             
             # MongoDB ID
             m_id = 0    
 
-            # Lauch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            collection = cls.mongodb_atlas()
 
-            # Open a new browser page (gmail)
-            page = browser.pages[0] 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
+            # Open a new browser page
+            page = context.pages[0] if context.pages else context.new_page()
             page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
             
             # Open Second Tabs (aliyun)
@@ -920,19 +1019,19 @@ class Aliyun(Automation, JavaScript_Style):
                 page2.wait_for_timeout(500)
 
     # Watermelon Aliyun 国际站【RAM】    # page = gmail, page2 = alibaba
-    @staticmethod
-    def watermelon_aliyun_INT_RAM():
+    @classmethod
+    def watermelon_aliyun_INT_RAM(cls):
         with sync_playwright() as p: 
              
-            # Lauch Chromium
-            browser = __class__.chromium(p)
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
 
-            # Open a new browser page (gmail)
-            page = browser.pages[0] 
-            page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
-            
-            # Open Second Tabs (aliyun)
-            page2 = browser.new_page() 
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
+            # Open a new browser page
+            page2 = context.pages[0] if context.pages else context.new_page()
             page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
             # delay 1second
@@ -2647,7 +2746,8 @@ class Zentao_Noctool(Automation):
 # Uncomment the following lines to run the automation scripts
 
 # Aliyun
-# Aliyun.aliyun_CN()
+Automation.chrome_CDP()
+Aliyun.aliyun_CN()
 # Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
 # Aliyun.aliyun_INT_RAM()
@@ -2669,10 +2769,10 @@ class Zentao_Noctool(Automation):
 
 # Other
 # Other_Cloud.gname()
-# driver = Selenium_Automation.chrome()
-# Other_Cloud.sms_man(driver)
 # Other_Cloud.s211()
 # Other_Cloud.byteplus()
+# driver = Selenium_Automation.chrome()
+# Other_Cloud.sms_man(driver)
 
 # Zentao & Noctool
 # Zentao_Noctool.zentaowater()
