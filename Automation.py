@@ -3,8 +3,6 @@ import os
 import cv2
 import time
 import atexit
-import signal
-import psutil
 import base64
 import random
 import certifi
@@ -234,13 +232,13 @@ class Automation:
         # Access Collection
         return db["Night_Database_2"]
     
-        # Wait for Chrome CDP to be ready
-    
+    chrome_proc = None
+
     # Chrome CDP
     @classmethod
     def chrome_CDP(cls):
         # Step 1: Start Chrome normally
-        subprocess.Popen([
+        cls.chrome_proc = subprocess.Popen([
             "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
             "--remote-debugging-port=9222",
             "--user-data-dir=/Users/n02-19/PlaywrightProfile",
@@ -249,19 +247,22 @@ class Automation:
             "--no-default-browser-check",
             f"--disable-extensions-except={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
             f"--load-extension={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
-        ])
-
+        ],
+        stdout=subprocess.DEVNULL,  # ✅ hide chrome cdp logs
+        stderr=subprocess.DEVNULL   # ✅ hide chrome cdp logs
+        )
         print("Chrome launched. Waiting...")
 
-        # Register cleanup / Fix chrome pop up Restore. make it close cleanly
-        def cleanup():
-            try:
-                print("Gracefully terminating Chrome...")
-                cls.chrome_proc.terminate()
-            except Exception as e:
-                print(f"Error terminating Chrome: {e}")
+        atexit.register(cls.cleanup)
 
-        atexit.register(cleanup)
+    # Register cleanup / Fix chrome pop up Restore. make it close cleanly
+    @classmethod
+    def cleanup(cls):
+        try:
+            print("Gracefully terminating Chrome...")
+            cls.chrome_proc.terminate()
+        except Exception as e:
+            print(f"Error terminating Chrome: {e}")
 
     # Wait for Chrome CDP to be ready
     @staticmethod
@@ -310,13 +311,17 @@ class Aliyun(Automation, JavaScript_Style):
 
     # Drag n Drop Random Number
     @classmethod
-    def drag_random(cls, x_drag_min, x_drag_max):
-        random_x = random.randint(x_drag_min, x_drag_max)
-        pyautogui.moveTo(random_x, button='left', duration=0.13)
+    def drag_random(cls, x, y):
+        random_x = random.randint(*x)
+        random_y = random.randint(*y)
+        pyautogui.moveTo(random_x, random_y, duration=0.15)
+        return random_x, random_y
     @classmethod
-    def drop_random(cls, y_drop_min, y_drop_max):
-        random_y = random.randint(y_drop_min, y_drop_max)
-        pyautogui.dragTo(random_y, button='left', duration=0.13)    
+    def drop_random(cls, x, y):
+        random_x = random.randint(*x)
+        random_y = random.randint(*y)
+        pyautogui.dragTo(random_x, random_y, button='left', duration=0.13)
+        return random_x, random_y
 
     # Aliyun 中国站
     @classmethod
@@ -373,7 +378,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -471,7 +476,7 @@ class Aliyun(Automation, JavaScript_Style):
                 page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home", wait_until="domcontentloaded", timeout= 0)
 
                 # delay 3seconds
-                page.wait_for_timeout(2000)
+                page.wait_for_timeout(3000)
     
     # Aliyun 国际站
     @classmethod
@@ -525,8 +530,8 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
-
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
+  
                 # lastpass search ven and click 
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -548,17 +553,18 @@ class Aliyun(Automation, JavaScript_Style):
                 while True:
                     #  if image found do something, else will error and stop
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-                        pyautogui.moveTo(random.choice(ali_intl_drag), duration=0.13)
-                        pyautogui.dragTo(random.choice(ali_intl_drop), button='left', duration=0.13)
+                    
+                        cls.drag_random((975, 1007), (505, 520))
+                        cls.drop_random((1255, 1270), (500, 531))
 
-                        # # delay 3seconds
+                        # delay 3seconds
                         page.wait_for_timeout(3000)
     
                         # if '登录阿里云账号' is there, means drag and drop failed
                         try:
                             if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
                                 # Mouse Click
-                                pyautogui.click(x=1113, y=567)
+                                pyautogui.click(x=1114, y=510)
                                 # delay 1second
                                 page.wait_for_timeout(1000)
                         except:
@@ -677,7 +683,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -701,11 +707,8 @@ class Aliyun(Automation, JavaScript_Style):
                     #  if image found do something, else will error and stop
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
                     
-                        # drag X between 985-1000
-                        cls.drag_random(985,1000)
-                        # drop Y between 550-580
-                        cls.drop_random(550,580) 
-                        print(cls.move_random(), cls.drag_random())
+                        cls.drag_random((975, 1007), (505, 520))
+                        cls.drop_random((1255, 1270), (500, 531))
 
                         # delay 3seconds
                         page.wait_for_timeout(3000)
@@ -714,7 +717,7 @@ class Aliyun(Automation, JavaScript_Style):
                         try:
                             if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
                                 # Mouse Click
-                                pyautogui.click(x=1113, y=567)
+                                pyautogui.click(x=1114, y=510)
                                 # delay 1second
                                 page.wait_for_timeout(1000)
                         except:
@@ -820,7 +823,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
                 while image_vault_0 is None:
-                    image_vault_0 = pyautogui.locateOnScreen("./image/vault_0.png", grayscale = True)
+                    image_vault_0 = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=63)
@@ -1030,6 +1033,10 @@ class Aliyun(Automation, JavaScript_Style):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
 
+            # Open a new browser page (gmail)
+            page = browser.pages[0] 
+            page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
+
             # Open a new browser page
             page2 = context.pages[0] if context.pages else context.new_page()
             page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
@@ -1051,7 +1058,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
                 while image_vault_0 is None:
-                    image_vault_0 = pyautogui.locateOnScreen("./image/vault_0.png", grayscale = True)
+                    image_vault_0 = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=63)
@@ -2745,10 +2752,12 @@ class Zentao_Noctool(Automation):
 
 # Uncomment the following lines to run the automation scripts
 
-# Aliyun
+# Launch Chrome CDP
 Automation.chrome_CDP()
-Aliyun.aliyun_CN()
-# Aliyun.aliyun_INT()
+
+# Aliyun
+# Aliyun.aliyun_CN()
+Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
 # Aliyun.aliyun_INT_RAM()
 # Aliyun.watermelon_aliyun_INT_RAM()
