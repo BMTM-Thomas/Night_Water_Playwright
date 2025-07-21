@@ -2,6 +2,7 @@ import re
 import os
 import cv2
 import time
+import signal
 import atexit
 import base64
 import random
@@ -81,10 +82,10 @@ class MyChatGPT:
                 x, y = GRID_MAP[pos]
                 print(f"Clicking {pos} at ({x}, {y})")
                 # Random time sleep between 0.5 to 1 second
-                time.sleep(random_Sleep)
+                # time.sleep(random_Sleep)
                 pyautogui.click(x, y)  
                 # Random time sleep between 0.5 to 1 second
-                time.sleep(random_Sleep)
+                # time.sleep(random_Sleep)
             else:
                 print(f"[!] Unknown position: {pos}")
 
@@ -286,6 +287,14 @@ class Automation:
 
         atexit.register(cls.cleanup)
 
+    # Close Chrome CDP
+    @classmethod
+    def close_chrome_CDP(cls):
+        if cls.chrome_proc:
+            print("Closing Chrome...")
+            os.killpg(os.getpgid(cls.chrome_proc.pid), signal.SIGKILL)
+            cls.chrome_proc = None
+
     # Register cleanup / Fix chrome pop up Restore. make it close cleanly
     @classmethod
     def cleanup(cls):
@@ -294,7 +303,7 @@ class Automation:
             cls.chrome_proc.terminate()
         except Exception as e:
             print(f"Error terminating Chrome: {e}")
-
+    
     # Wait for Chrome CDP to be ready
     @staticmethod
     def wait_for_cdp_ready(timeout=10):
@@ -828,8 +837,8 @@ class Aliyun(Automation, JavaScript_Style):
             # Second Tab Navigate to Aliyun Ram
             page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
-            # delay 1second
-            page2.wait_for_timeout(1000)
+            # delay 2seconds
+            page2.wait_for_timeout(2000)
 
             # Refresh page
             page2.reload()
@@ -839,7 +848,6 @@ class Aliyun(Automation, JavaScript_Style):
                 
                 # wait for "RAM 用户登录" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
-                page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "OK!")
 
                 # Wait for lastpass vault button image to appear
@@ -1055,25 +1063,10 @@ class Aliyun(Automation, JavaScript_Style):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-            # Gmail Tab - Always use first tab (page)
-            if len(context.pages) > 0:
-                page = context.pages[0]
-            else:
-                page = context.new_page()
-
-            # Only navigate if not already on Gmail
-            if not page.url.startswith("https://mail.google.com"):
-                page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
-
-            # Aliyun Tab - Always use second tab (page2)
-            if len(context.pages) > 1:
-                page2 = context.pages[1]
-            else:
-                page2 = context.new_page()
-
-            # Only navigate if not already on Aliyun
-            if not page2.url.startswith("https://signin.alibabacloud.com"):
-                page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
+            # Reuse page navigate to gmail.com
+            page = context.pages[0] if len(context.pages) > 0 else context.new_page()
+            # Reuse page navigate to alibaba.com
+            page2 = context.pages[1] if len(context.pages) > 1 else context.new_page()
 
             # delay 1second
             page2.wait_for_timeout(1000)
@@ -1292,21 +1285,25 @@ class Aliyun(Automation, JavaScript_Style):
 class Tencent(Automation):
 
     # 腾讯云【中国站】
-    @staticmethod
-    def tencent_CN():
+    @classmethod
+    def tencent_CN(cls):
         with sync_playwright() as p:  
             
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://cloud.tencent.com/login?s_url=https://console.cloud.tencent.com/expense/overview", wait_until="domcontentloaded")
 
             # if is "子用户登录" then click "切换登录方式", else skip
@@ -1316,7 +1313,7 @@ class Tencent(Automation):
                 page.locator("//button[@class='accsys-control-panel__header-back']").click()
             except:
                 pass
-
+            
             # wait for "邮箱登录" to be appear
             page.locator("//div[contains(text(),'邮箱登录')]").wait_for(timeout=0) 
 
@@ -1329,7 +1326,7 @@ class Tencent(Automation):
             # Wait for lastpass vault button image to appear
             image_vault = None
             while image_vault is None:
-                image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
             # lastpass search ven and click 
             # delay 0.5second
@@ -1344,44 +1341,69 @@ class Tencent(Automation):
 
             # Click "登录" to Login
             page.locator("//span[@class='accsys-tp-btn__text'][contains(text(),'登录')]").click()
-     
+            # Move mouse to aside, prevent chatgpt cannot see the image clearly
+            pyautogui.click(x=395, y=309)
 
-            # Check whether verification image is appear, if no skip
-            try:
-                ## Get iframe
-                iframe = page.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
+            # wait for CAPTCHA "image验证" to be appear
+            loop_count = 0
+            while True:
+                loop_count += 1  # Increment each loop
+                print(f"🔁 Loop attempt #{loop_count}")
 
-                # wait for "image验证" to be appear
-                iframe.locator("//span[@id='pHeaderTitle']").wait_for(timeout=0) 
-                expect(iframe.locator("//span[@id='pHeaderTitle']")).to_have_text("选择最符合描述的图片", timeout=1500)
+                try:
+                    ## Get iframe
+                    iframe = page.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
+                    if iframe.locator("//span[@id='pHeaderTitle']").text_content(timeout=2000) == "选择最符合描述的图片":
+                        print("🛑 Captcha challenge detected.")
+
+                        # delay 4 seconds
+                        page.wait_for_timeout(4000)
+
+                        # Screenshot (region= x, y, width, height)
+                        screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))  # Adjust region as needed
+                        screenshot.save('./晚班水位/ven182.png')
+
+                        # Use MyChatGPT to analyze the image
+                        gpt_client = MyChatGPT()
+                        prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
+                        response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
+                        print("🧠 GPT Response:", response_text)
+
+                        # Click based on response
+                        gpt_client.extract_positions_and_click(response_text)
+
+                        # delay 1 second
+                        page.wait_for_timeout(1000)
+
+                        # Button click “验证确定”
+                        iframe.locator("//button[@id='verifyBtn']").click()
+
+                        # Wait and check if captcha still present
+                        if iframe.locator("//span[@id='pHeaderTitle']").text_content(timeout=5000) == "选择最符合描述的图片":
+                            print("🔁 Captcha challenge still present, retrying...")
+                            # Move mouse to aside, prevent chatgpt cannot see the image clearly
+                            pyautogui.click(x=395, y=309)
+                            continue
+                        else:
+                            print("✅ Captcha solved.")
+
+                            # delay 0.5second
+                            page.wait_for_timeout(500)
+
+                            # wait for "可用余额" to be appear
+                            page.locator("//h3[contains(text(),'可用余额')]").wait_for(timeout=2000) 
+                            break
+                except:
+                    pass
+
+                try:
+                    # Second, try "可用余额"
+                    page.locator("//h3[contains(text(),'可用余额')]").wait_for(timeout=2000)
+                    print("✅ 可用余额 appeared first. No captcha.")
+                    break
+                except:
+                    pass
             
-                # delay 4 seconds
-                page.wait_for_timeout(4000)
-
-                # Screenshot (region= x, y, width, height)
-                screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))  # Adjust region as needed
-                screenshot.save('./晚班水位/ven182.png')
-
-                # Use MyChatGPT to analyze the image
-                gpt_client = MyChatGPT()
-                prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
-                response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
-                print("GPT Response:", response_text)
-
-                # Click based on response
-                MyChatGPT.extract_positions_and_click(response_text)
-
-                # Button click “验证确定”
-                iframe.locator("//button[@id='verifyBtn']").click()
-            except:
-                pass
-
-            # delay 0.5second
-            page.wait_for_timeout(500)
-        
-            # wait for "可用余额" to be appear
-            page.locator("//h3[contains(text(),'可用余额')]").wait_for(timeout=0) 
-
             # Wait for element == "a value/text"
             expect(page.locator("//div[@class='tc-g account-summary-data']//div[3]//div[2]")).to_have_text("0.00 元", timeout=5000)
 
@@ -1402,14 +1424,14 @@ class Tencent(Automation):
             # mongdb+id +1
             m_id += 1
 
-            # wait for "主账号" to be appear
-            page.locator("(//p[@class='sdk-nav-v2-nav-user-info-account-text'])[1]").wait_for(timeout=0) 
+            # delay 0.5second
+            page.wait_for_timeout(500)
 
             # hover to menu
-            pyautogui.moveTo(1498, 157)
+            pyautogui.moveTo(1502, 105)
 
             # wait for "安全设置" to be appear
-            page.locator("//span[contains(text(),'安全设置')]").wait_for(timeout=0) 
+            page.locator("//span[contains(text(),'安全设置')]").wait_for(state="visible", timeout=0)
 
             # delay 0.5second
             page.wait_for_timeout(500)
@@ -1423,25 +1445,29 @@ class Tencent(Automation):
             # Click "logout" to Login
             page.locator("//button[contains(text(),'退出')]").click()
 
-            # delay 2second
-            page.wait_for_timeout(2000)
+            # delay 3second
+            page.wait_for_timeout(3000)
 
     # 腾讯云【中国站】 子用户登录
-    @staticmethod
-    def tencent_CN_SUB():
+    @classmethod
+    def tencent_CN_SUB(cls):
         with sync_playwright() as p:  
             
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://cloud.tencent.com/login/subAccount?s_url=https%3A%2F%2Fconsole.cloud.tencent.com%2Fexpense%2Foverview", wait_until="domcontentloaded")
 
             # wait for "子用户登录" to be appear
@@ -1453,7 +1479,7 @@ class Tencent(Automation):
             # Wait for lastpass vault button image to appear
             image_vault = None
             while image_vault is None:
-                image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
             # lastpass search ven and click 
             # delay 0.5second
@@ -1520,21 +1546,25 @@ class Tencent(Automation):
             page.wait_for_timeout(2000)
 
     # 腾讯云【国际站】
-    @staticmethod
-    def tencent_INT():
+    @classmethod
+    def tencent_INT(cls):
         with sync_playwright() as p:  
             
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://www.tencentcloud.com/zh/account/login?s_url=https://console.tencentcloud.com/expense/rmc/accountinfo", wait_until="domcontentloaded")
 
             # if is "子用户登录" then click "切换登录方式", else skip
@@ -1559,7 +1589,7 @@ class Tencent(Automation):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -1623,21 +1653,25 @@ class Tencent(Automation):
                 page.wait_for_timeout(1000)
             
     # 腾讯云【国际站】CAM用户登录
-    @staticmethod
-    def tencent_INT_CAM():
+    @classmethod
+    def tencent_INT_CAM(cls):
         with sync_playwright() as p:  
             
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             
             for ven_id in tencent_CAM_ID:
 
@@ -1655,7 +1689,7 @@ class Tencent(Automation):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -1721,21 +1755,25 @@ class Tencent(Automation):
         # Tencent VEN295 (Tencent Website Bug)
     
     # 腾讯云【国际站】ven295 (Tencent Website Bug)
-    @staticmethod
-    def tencent_ven295():
+    @classmethod
+    def tencent_ven295(cls):
         with sync_playwright() as p:  
                     
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://intl.cloud.tencent.com/zh/account/login?s_url=https%3A%2F%2Fconsole.intl.cloud.tencent.com%2Fexpense%2Frmc%2Faccountinfo", wait_until="domcontentloaded")
 
             # wait for "邮箱登录" to be appear
@@ -1750,7 +1788,7 @@ class Tencent(Automation):
             # Wait for lastpass vault button image to appear
             image_vault = None
             while image_vault is None:
-                image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
             # lastpass search ven and click 
             # delay 0.5second
@@ -2793,11 +2831,11 @@ Automation.chrome_CDP()
 # Aliyun.aliyun_CN()
 # Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
-Aliyun.aliyun_INT_RAM()
-Aliyun.watermelon_aliyun_INT_RAM()
+# Aliyun.aliyun_INT_RAM()
+# Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
-# Tencent.tencent_CN()
+Tencent.tencent_CN()
 # Tencent.tencent_CN_SUB()
 # Tencent.tencent_INT()
 # Tencent.tencent_INT_CAM()
