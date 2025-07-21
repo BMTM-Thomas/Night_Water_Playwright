@@ -232,6 +232,37 @@ class Automation:
         # Access Collection
         return db["Night_Database_2"]
     
+        # Chromium Browser (def chromium can delete if no use)
+    
+    # Chromium Browser
+    @classmethod
+    def chromium(cls, p):
+        browser = p.chromium.launch_persistent_context(
+            cls.USER_DATA_DIR,
+            headless=False,  # Extensions do NOT work in headless mode
+            args=[
+                f"--disable-extensions-except={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
+                f"--load-extension={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
+                "--disable-infobars",
+                "--disable-blink-features=AutomationControlled",
+                "--disable-popup-blocking",
+                "--disable-gpu",
+                "--disable-dev-shm-usage",
+                "--disable-logging", 
+                "--no-sandbox",
+                "--start-maximized",
+                "--no-default-browser-check",
+                "--no-first-run",
+                "--hide-crash-restore-bubble",
+                "--disable-web-security",
+                "--allow-running-insecure-content",
+            ],
+            no_viewport=True,
+            locale="en-US",
+        )
+        return browser
+
+    # Chrome CDP 
     chrome_proc = None
 
     # Chrome CDP
@@ -277,34 +308,6 @@ class Automation:
                 pass
             time.sleep(1)
         raise RuntimeError("Chrome CDP is not ready after waiting.")
-
-    # Chromium Browser (def chromium can delete if no use)
-    @classmethod
-    def chromium(cls, p):
-        browser = p.chromium.launch_persistent_context(
-            cls.USER_DATA_DIR,
-            headless=False,  # Extensions do NOT work in headless mode
-            args=[
-                f"--disable-extensions-except={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
-                f"--load-extension={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
-                "--disable-infobars",
-                "--disable-blink-features=AutomationControlled",
-                "--disable-popup-blocking",
-                "--disable-gpu",
-                "--disable-dev-shm-usage",
-                "--disable-logging", 
-                "--no-sandbox",
-                "--start-maximized",
-                "--no-default-browser-check",
-                "--no-first-run",
-                "--hide-crash-restore-bubble",
-                "--disable-web-security",
-                "--allow-running-insecure-content",
-            ],
-            no_viewport=True,
-            locale="en-US",
-        )
-        return browser
 
 # Aliyun Automation
 class Aliyun(Automation, JavaScript_Style):
@@ -540,11 +543,14 @@ class Aliyun(Automation, JavaScript_Style):
                 page.wait_for_timeout(500)
                 # Mouse Click
                 pyautogui.click(x=1260, y=170)
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 1second
+                page.wait_for_timeout(1000)
 
                 ## Click "登录" to Login
                 iframe.locator('#fm-login-submit').click()
+
+                # Simulate Human move mouse, to prevent bot detect
+                cls.drag_random((267, 471), (112, 625))
                 
                 # delay 3seconds
                 page.wait_for_timeout(3000)
@@ -571,7 +577,13 @@ class Aliyun(Automation, JavaScript_Style):
                             pass
                     else:
                         break
-         
+                  
+                ## Click "登录" to Login
+                try:
+                    iframe.locator('#fm-login-submit').click(timeout=500)
+                except:
+                    pass 
+
                 # Wait "正常" to be appear
                 __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
                 __class__.green_Check(page.locator("//span[contains(text(),'正常')]"), "OK!")
@@ -698,6 +710,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                 ## Click "登录" to Login
                 iframe.locator('#fm-login-submit').click()
+
+                # Simulate Human move mouse, to prevent bot detect
+                cls.drag_random((267, 471), (112, 625))
                 
                 # delay 3seconds
                 page.wait_for_timeout(3000)
@@ -712,7 +727,7 @@ class Aliyun(Automation, JavaScript_Style):
 
                         # delay 3seconds
                         page.wait_for_timeout(3000)
-    
+
                         # if '登录阿里云账号' is there, means drag and drop failed
                         try:
                             if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
@@ -724,6 +739,12 @@ class Aliyun(Automation, JavaScript_Style):
                             pass
                     else:
                         break
+
+                ## Click "登录" to Login
+                try:
+                    iframe.locator('#fm-login-submit').click(timeout=500)
+                except:
+                    pass    
                 
                 # Wait "VISA Logo" to be appear
                 __class__.red_Check(page.locator("//span[@class='payment-cardrand-visa']"), "Wait 'VISA LOGO APPEAR'")
@@ -797,13 +818,14 @@ class Aliyun(Automation, JavaScript_Style):
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
-
-            # Open a new browser page
+        
+            # Create Browser Tabs
             page = context.pages[0] if context.pages else context.new_page()
+            page2 = context.new_page()
+
+            # First Tab Navigate to Gmail
             page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
-            
-            # Open Second Tabs (aliyun)
-            page2 = browser.new_page() 
+            # Second Tab Navigate to Aliyun Ram
             page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
             # delay 1second
@@ -823,7 +845,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
                 while image_vault_0 is None:
-                    image_vault_0 = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
+                    image_vault_0 = pyautogui.locateOnScreen("./image/vault_0.png", grayscale = True)
 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=63)
@@ -831,7 +853,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -1033,14 +1055,26 @@ class Aliyun(Automation, JavaScript_Style):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-            # Open a new browser page (gmail)
-            page = browser.pages[0] 
-            page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
+            # Gmail Tab - Always use first tab (page)
+            if len(context.pages) > 0:
+                page = context.pages[0]
+            else:
+                page = context.new_page()
 
-            # Open a new browser page
-            page2 = context.pages[0] if context.pages else context.new_page()
-            page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
-            
+            # Only navigate if not already on Gmail
+            if not page.url.startswith("https://mail.google.com"):
+                page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
+
+            # Aliyun Tab - Always use second tab (page2)
+            if len(context.pages) > 1:
+                page2 = context.pages[1]
+            else:
+                page2 = context.new_page()
+
+            # Only navigate if not already on Aliyun
+            if not page2.url.startswith("https://signin.alibabacloud.com"):
+                page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
+
             # delay 1second
             page2.wait_for_timeout(1000)
 
@@ -1058,7 +1092,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
                 while image_vault_0 is None:
-                    image_vault_0 = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
+                    image_vault_0 = pyautogui.locateOnScreen("./image/vault_0.png", grayscale = True)
 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=63)
@@ -1066,7 +1100,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -2757,10 +2791,10 @@ Automation.chrome_CDP()
 
 # Aliyun
 # Aliyun.aliyun_CN()
-Aliyun.aliyun_INT()
+# Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
-# Aliyun.aliyun_INT_RAM()
-# Aliyun.watermelon_aliyun_INT_RAM()
+Aliyun.aliyun_INT_RAM()
+Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
 # Tencent.tencent_CN()
