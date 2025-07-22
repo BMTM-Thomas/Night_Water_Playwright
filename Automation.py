@@ -2,7 +2,6 @@ import re
 import os
 import cv2
 import time
-import signal
 import atexit
 import base64
 import random
@@ -265,8 +264,6 @@ class Automation:
 
     # Chrome CDP 
     chrome_proc = None
-
-    # Chrome CDP
     @classmethod
     def chrome_CDP(cls):
         # Step 1: Start Chrome normally
@@ -275,6 +272,7 @@ class Automation:
             "--remote-debugging-port=9222",
             "--user-data-dir=/Users/n02-19/PlaywrightProfile",
             "--disable-session-crashed-bubble",
+            "--hide-crash-restore-bubble",
             "--no-first-run",
             "--no-default-browser-check",
             f"--disable-extensions-except={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
@@ -288,14 +286,6 @@ class Automation:
         atexit.register(cls.cleanup)
 
     # Close Chrome CDP
-    @classmethod
-    def close_chrome_CDP(cls):
-        if cls.chrome_proc:
-            print("Closing Chrome...")
-            os.killpg(os.getpgid(cls.chrome_proc.pid), signal.SIGKILL)
-            cls.chrome_proc = None
-
-    # Register cleanup / Fix chrome pop up Restore. make it close cleanly
     @classmethod
     def cleanup(cls):
         try:
@@ -351,7 +341,7 @@ class Aliyun(Automation, JavaScript_Style):
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
-            context = browser.contexts[0] if browser.contexts else browser.new_context()
+            context = browser.contexts[0] if browser.contexts else browser.new_context()    
 
             # Open a new browser page
             page = context.pages[0] if context.pages else context.new_page()
@@ -359,11 +349,11 @@ class Aliyun(Automation, JavaScript_Style):
             
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
-                if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=1000):
+                if page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=1000):
                     # Click "主账号登录"
                     page.locator("//span[contains(text(),'主账号登录')]").click()
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
+                    # delay 1second
+                    page.wait_for_timeout(1000)
                     # page go to a link
                     page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home")
             except:
@@ -374,7 +364,7 @@ class Aliyun(Automation, JavaScript_Style):
                 ## Get iframe
                 iframe = page.frame_locator("//div[@id='alibaba-login-iframe']//iframe[@id='alibaba-login-box']")
 
-                ## Wait for "简体中文" to be appear
+                ## Wait for "立即登录" to be appear
                 __class__.red_Check(iframe.locator("//button[contains(text(),'立即登录')]"), "Wait '立即登录'")
                 __class__.green_Check(iframe.locator("//button[contains(text(),'立即登录')]"), "OK! Ready to Click !")
 
@@ -402,7 +392,7 @@ class Aliyun(Automation, JavaScript_Style):
                 pyautogui.click(x=1260, y=170)
                 # delay 0.5second
                 page.wait_for_timeout(500)
-
+            
                 ## Click "立即登录" to Login
                 iframe.locator('.fm-btn').click()
 
@@ -533,7 +523,7 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.green_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "OK!")
 
                 ## Wait for "登录" to be appear
-                __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '简体中文'")
+                __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '登录'")
                 __class__.green_Check(iframe.locator("//input[@id='fm-login-submit']"), "Ready to Click!")
                 
                 # click lastpass extension       
@@ -552,8 +542,8 @@ class Aliyun(Automation, JavaScript_Style):
                 page.wait_for_timeout(500)
                 # Mouse Click
                 pyautogui.click(x=1260, y=170)
-                # delay 1second
-                page.wait_for_timeout(1000)
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
                 ## Click "登录" to Login
                 iframe.locator('#fm-login-submit').click()
@@ -1289,6 +1279,7 @@ class Tencent(Automation):
     def tencent_CN(cls):
         with sync_playwright() as p:  
             
+            time.sleep(1111)
             # MongoDB ID
             m_id = 0
 
@@ -2831,11 +2822,11 @@ Automation.chrome_CDP()
 # Aliyun.aliyun_CN()
 # Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
-# Aliyun.aliyun_INT_RAM()
+Aliyun.aliyun_INT_RAM()
 # Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
-Tencent.tencent_CN()
+# Tencent.tencent_CN()
 # Tencent.tencent_CN_SUB()
 # Tencent.tencent_INT()
 # Tencent.tencent_INT_CAM()
