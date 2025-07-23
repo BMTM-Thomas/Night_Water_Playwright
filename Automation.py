@@ -510,7 +510,7 @@ class Aliyun(Automation, JavaScript_Style):
                     # delay 0.5second
                     page.wait_for_timeout(500)
                     # page go to a link
-                    page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home")
+                    page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
             except:
                 pass
 
@@ -827,8 +827,8 @@ class Aliyun(Automation, JavaScript_Style):
             # Second Tab Navigate to Aliyun Ram
             page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
-            # delay 2seconds
-            page2.wait_for_timeout(2000)
+            # delay 1.5seconds
+            page2.wait_for_timeout(1500)
 
             # Refresh page
             page2.reload()
@@ -839,7 +839,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # wait for "RAM 用户登录" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
                 __class__.green_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "OK!")
-
+        
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
                 while image_vault_0 is None:
@@ -912,7 +912,7 @@ class Aliyun(Automation, JavaScript_Style):
                             # Mail Refresh
                             page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
                             continue
-
+                    
                     # Check first 5 unread email rows
                     for i in range(5):
                         try:
@@ -1026,7 +1026,7 @@ class Aliyun(Automation, JavaScript_Style):
                         page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # delay 0.3second
-                page2.wait_for_timeout(300)
+                page2.wait_for_timeout(500)
 
                 # Screenshot
                 ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
@@ -1053,13 +1053,17 @@ class Aliyun(Automation, JavaScript_Style):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-            # Reuse page navigate to gmail.com
-            page = context.pages[0] if len(context.pages) > 0 else context.new_page()
-            # Reuse page navigate to alibaba.com
-            page2 = context.pages[1] if len(context.pages) > 1 else context.new_page()
+            # Create Browser Tabs
+            page = context.pages[0] if context.pages else context.new_page()
+            page2 = context.new_page()
 
-            # delay 1second
-            page2.wait_for_timeout(1000)
+            # First Tab Navigate to Gmail
+            page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
+            # Second Tab Navigate to Aliyun Ram
+            page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
+            
+            # delay 1.5seconds
+            page2.wait_for_timeout(1500)
 
             # Refresh page
             page2.reload()
@@ -1068,10 +1072,9 @@ class Aliyun(Automation, JavaScript_Style):
             for ven_id in watermelon_aliyun_INT_RAM_ID:
                 
                 # wait for "RAM 用户登录" to be appear
-                __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait ‘RAM 用户登录'")
-                page2.wait_for_timeout(300)
+                __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
                 __class__.green_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "OK!")
-
+        
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
                 while image_vault_0 is None:
@@ -1089,70 +1092,76 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 0.5second
                 page2.wait_for_timeout(500)
                 pyautogui.write(ven_id)
-                # delay 1second
-                page2.wait_for_timeout(1000)
+                # delay 0.5second
+                page2.wait_for_timeout(500)
                 # Mouse Click
                 pyautogui.click(x=1260, y=170)
                 # delay 0.5second
                 page2.wait_for_timeout(500)
 
                 # Click "下一步" 
-                __class__.red_Check(page2.locator("//button[@type='button']"), "Wait ‘下一步'")
-                __class__.green_Check(page2.locator("//button[@type='button']"), "OK! 下一步!")
+                __class__.red_Check(page2.locator("//button[@type='button']"), "Wait '下一步'")
+                page2.wait_for_timeout(300)
+                __class__.green_Check(page2.locator("//button[@type='button']"), "OK! Click 下一步")
                 page2.locator('//button[@type="button"]').click()
                 
                 # Wait for "*用户密码" appear
-                __class__.red_Check(page2.locator("//label[contains(text(),'用户密码')]"), "Wait ‘用户密码'")
+                __class__.red_Check(page2.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
                 page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//label[contains(text(),'用户密码')]"), "OK!")
 
-                # Drag and Drop Verfication Appear
-                while True:
-                    alidnd = pyautogui.locateOnScreen('./image/alidnd.png')
-                    if alidnd is not None:
-                        pyautogui.moveTo(random.choice(ali_ram_drag), 0.13)
-                        pyautogui.dragTo(random.choice(ali_ram_drop), button='left', duration=0.13)           
-                    else:
-                        break
-        
-                # delay 0.5second
-                page2.wait_for_timeout(500)
+                # delay 0.3second
+                page2.wait_for_timeout(300)
 
                 # Click “登入”
+                __class__.red_Check(page2.locator("//button[@type='submit']"), "Wait '*用户密码'")
+                page2.wait_for_timeout(300)
+                __class__.green_Check(page2.locator("//button[@type='submit']"), "OK!")
                 page2.locator('//button[@type="submit"]').click()
+                
+                # delay 0.3second
+                page2.wait_for_timeout(300)
 
                 # Wait for "验证安全邮箱" appear
-                __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait ‘验证安全邮箱'")
+                __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
                 page2.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "OK!")
 
                 # Click "获取验证码" 
+                __class__.red_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "Wait '验证安全邮箱'")
+                page2.wait_for_timeout(300)
+                __class__.green_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "OK!")
                 page2.locator('//span[contains(text(),"获取验证码")]').click()
 
                 # Switch to Gmail
                 page.bring_to_front()  
 
+                # 等待gmail alibaba验证码 跳出
                 try:
                     while True:
                         try:
-                            # Wait for unread email from Alibaba Cloud (Verification Code)
+                            # Wait until at least one unread email is visible
                             page.wait_for_selector("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code'):has-text('- This email is sent by Alibaba Cloud and is automatically generated. Please do not reply directly. ')", timeout=5000)
                             break
                         except:
                             # Mail Refresh
                             page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
                             continue
+                    
+                    # Check first 5 unread email rows
+                    for i in range(5):
+                        try:
+                            row = page.locator("tr.zE").nth(i)
+                            content = row.inner_text(timeout=3000)
 
-                    # If found click the latest unread Alibaba Cloud Email
-                    # Else not found
-                    locator = page.locator("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code'):has-text('- This email is sent by Alibaba Cloud and is automatically generated. Please do not reply directly. ')")
+                            if ("Alibaba Cloud" in content and 
+                                "Security Verification Code" in content and 
+                                "This email is sent by Alibaba Cloud" in content):
+                                row.click()
+                                break
+                        except Exception as e:
+                            continue  # Skip if row not available or timeout
 
-                    # if found then click the first and latest mail, else No new Alibaba Cloud Verfication Code Found.
-                    if locator.count() > 0:
-                        locator.first.click()
-                    else:
-                        print("No new Alibaba Cloud Verfication Code Found.")
-                
                 except TimeoutError:
                     print("No unread Alibaba Cloud email appeared in time.")
 
@@ -1254,14 +1263,13 @@ class Aliyun(Automation, JavaScript_Style):
                         __class__.green_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover Menu")
                         page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
-
                 # Wait for "安全管控" to be appear
                 __class__.red_Check(page2.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
                 page.wait_for_timeout(300)
                 __class__.green_Check(page2.locator("//span[contains(text(),'安全管控')]"), "OK!")
 
-                # delay 0.3second
-                page2.wait_for_timeout(300)
+                # delay 0.5second
+                page2.wait_for_timeout(500)
 
                 # Click "退出登录" Logout
                 __class__.red_Check(page2.locator("//a[contains(text(),'退出登录')]"), "Wait '退出登录'")
@@ -1279,7 +1287,6 @@ class Tencent(Automation):
     def tencent_CN(cls):
         with sync_playwright() as p:  
             
-            time.sleep(1111)
             # MongoDB ID
             m_id = 0
 
@@ -1304,7 +1311,7 @@ class Tencent(Automation):
                 page.locator("//button[@class='accsys-control-panel__header-back']").click()
             except:
                 pass
-            
+  
             # wait for "邮箱登录" to be appear
             page.locator("//div[contains(text(),'邮箱登录')]").wait_for(timeout=0) 
 
@@ -1338,59 +1345,50 @@ class Tencent(Automation):
             # wait for CAPTCHA "image验证" to be appear
             loop_count = 0
             while True:
-                loop_count += 1  # Increment each loop
-                print(f"🔁 Loop attempt #{loop_count}")
+                loop_count += 1
+                print(f"🔁 Wait for 验证跳出 or 可用余额... #{loop_count}")
 
                 try:
-                    ## Get iframe
+                    # set iframe
                     iframe = page.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
-                    if iframe.locator("//span[@id='pHeaderTitle']").text_content(timeout=2000) == "选择最符合描述的图片":
-                        print("🛑 Captcha challenge detected.")
 
-                        # delay 4 seconds
-                        page.wait_for_timeout(4000)
+                    # Check whether Captcha is present
+                    try:
+                        title = iframe.locator("//span[@id='pHeaderTitle']").text_content(timeout=1000)
+                    except:
+                        title = None
 
-                        # Screenshot (region= x, y, width, height)
-                        screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))  # Adjust region as needed
+                    # if title contains "选择" or "图片", then it is a captcha challenge
+                    if title and "选择" in title and "图片" in title:
+                        print(f"🛑 Captcha challenge detected: {title}")
+
+                        # Chatgpt solve captcha...
+                        page.wait_for_timeout(2000)
+                        screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))
                         screenshot.save('./晚班水位/ven182.png')
 
-                        # Use MyChatGPT to analyze the image
                         gpt_client = MyChatGPT()
                         prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
                         response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
                         print("🧠 GPT Response:", response_text)
 
-                        # Click based on response
                         gpt_client.extract_positions_and_click(response_text)
-
-                        # delay 1 second
-                        page.wait_for_timeout(1000)
-
-                        # Button click “验证确定”
                         iframe.locator("//button[@id='verifyBtn']").click()
 
-                        # Wait and check if captcha still present
-                        if iframe.locator("//span[@id='pHeaderTitle']").text_content(timeout=5000) == "选择最符合描述的图片":
-                            print("🔁 Captcha challenge still present, retrying...")
-                            # Move mouse to aside, prevent chatgpt cannot see the image clearly
-                            pyautogui.click(x=395, y=309)
-                            continue
-                        else:
-                            print("✅ Captcha solved.")
+                        # Mouse mouse to prevent it block the screenshot, causing chatgpt unable to solve captcha
+                        pyautogui.click(x=395, y=309)
+                        page.wait_for_timeout(3000)
 
-                            # delay 0.5second
-                            page.wait_for_timeout(500)
+                        # Check again x times
+                        continue
 
-                            # wait for "可用余额" to be appear
-                            page.locator("//h3[contains(text(),'可用余额')]").wait_for(timeout=2000) 
-                            break
-                except:
-                    pass
+                except Exception as e:
+                    print(f"[Debug] No captcha detected this loop: {e}")
 
+                # 检查可用余额
                 try:
-                    # Second, try "可用余额"
                     page.locator("//h3[contains(text(),'可用余额')]").wait_for(timeout=2000)
-                    print("✅ 可用余额 appeared first. No captcha.")
+                    print("✅ 可用余额 appeared. Captcha solved.")
                     break
                 except:
                     pass
@@ -2822,11 +2820,11 @@ Automation.chrome_CDP()
 # Aliyun.aliyun_CN()
 # Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
-Aliyun.aliyun_INT_RAM()
+# Aliyun.aliyun_INT_RAM()
 # Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
-# Tencent.tencent_CN()
+Tencent.tencent_CN()
 # Tencent.tencent_CN_SUB()
 # Tencent.tencent_INT()
 # Tencent.tencent_INT_CAM()

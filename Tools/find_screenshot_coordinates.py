@@ -4,7 +4,7 @@ import cv2
 import pyautogui
 
 # Load the image
-image = cv2.imread('/Users/n02-19/Desktop/demo5.png')
+image = cv2.imread('/Users/n02-19/Desktop/demo11.png')
 
 print(pyautogui.locateOnScreen(image))
 
