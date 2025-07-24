@@ -1,6 +1,5 @@
 import re
 import os
-import cv2
 import time
 import atexit
 import base64
@@ -11,8 +10,6 @@ import requests
 import pyautogui
 import pyperclip
 import subprocess
-import pytesseract
-import numpy as np
 from List_Zentao import *
 from openai import OpenAI
 from bson import ObjectId 
@@ -20,7 +17,7 @@ from List_Noctool import *
 from selenium import webdriver  
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from PIL import ImageGrab, Image
+from PIL import ImageGrab
 from bson.objectid import ObjectId  
 from List_Aliyun_DDCaptcha import *   
 from AppKit import NSPasteboard, NSPasteboardTypePNG
@@ -1510,11 +1507,11 @@ class Tencent(Automation):
             # mongdb+id +1
             m_id += 1
 
-            # wait for "主账号" to be appear
+            # wait for "子用户" to be appear
             page.locator("(//p[@class='sdk-nav-v2-nav-user-info-account-text'])[1]").wait_for(timeout=0) 
 
             # hover to menu
-            pyautogui.moveTo(1498, 157)
+            pyautogui.moveTo(1492, 112)
 
             # wait for "安全设置" to be appear
             page.locator("//span[contains(text(),'安全设置')]").wait_for(timeout=0) 
@@ -1558,7 +1555,7 @@ class Tencent(Automation):
 
             # if is "子用户登录" then click "切换登录方式", else skip
             try:
-                if page.locator("text='CAM用户登录'"):
+                if page.locator("text='CAM用户登录'").is_visible(timeout=2000):
                     # Click "主账号登录"
                     page.locator("//a[contains(text(),'主账号登录')]").click()
             except:
@@ -1567,7 +1564,7 @@ class Tencent(Automation):
             for ven_id in tencent_INT_ID:
 
                 # wait for "邮箱登录" to be appear
-                page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl']").wait_for(timeout=0) 
+                page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl tcas-login-panel__box-title']").wait_for(timeout=0) 
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -1621,7 +1618,7 @@ class Tencent(Automation):
                 m_id += 1
 
                 # hover to menu
-                pyautogui.moveTo(1551, 164)
+                pyautogui.moveTo(1551, 110)
 
                 # wait for "安全设置" to be appear
                 page.locator("//a[contains(text(),'安全设置')]").wait_for(timeout=0) 
@@ -1667,7 +1664,7 @@ class Tencent(Automation):
                 page.goto(Tencent_Webpage[m_id], wait_until="domcontentloaded")
 
                 # wait for "CAM用户登录" to be appear
-                page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl']").wait_for(timeout=0) 
+                page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl tcas-login-panel__box-title']").wait_for(timeout=0) 
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -1721,7 +1718,7 @@ class Tencent(Automation):
                 m_id += 1
 
                 # hover to menu
-                pyautogui.moveTo(1551, 164)
+                pyautogui.moveTo(1551, 110)
 
                 # wait for "安全设置" to be appear
                 page.locator("//a[contains(text(),'安全设置')]").wait_for(timeout=0) 
@@ -1740,8 +1737,6 @@ class Tencent(Automation):
 
                 # delay 1second
                 page.wait_for_timeout(1000)
-
-        # Tencent VEN295 (Tencent Website Bug)
     
     # 腾讯云【国际站】ven295 (Tencent Website Bug)
     @classmethod
@@ -1766,7 +1761,7 @@ class Tencent(Automation):
             page.goto("https://intl.cloud.tencent.com/zh/account/login?s_url=https%3A%2F%2Fconsole.intl.cloud.tencent.com%2Fexpense%2Frmc%2Faccountinfo", wait_until="domcontentloaded")
 
             # wait for "邮箱登录" to be appear
-            page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl']").wait_for(timeout=0) 
+            page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl tcas-login-panel__box-title']").wait_for(timeout=0) 
             
             # delay 0.5second
             page.wait_for_timeout(500)
@@ -1842,21 +1837,25 @@ class Tencent(Automation):
 class Huawei(Automation):
     
     # Huawei OPSADMIN
-    @staticmethod
-    def huawei_OPSADMIN():
+    @classmethod
+    def huawei_OPSADMIN(cls):
         with sync_playwright() as p:  
             
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             
             for ven_id in huawei_OPSADMIN_ID:
 
@@ -1875,7 +1874,7 @@ class Huawei(Automation):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -1954,7 +1953,7 @@ class Huawei(Automation):
                 m_id += 1
 
                 # hover to menu
-                pyautogui.moveTo(1533, 158)
+                pyautogui.moveTo(1502, 105)
 
                 # wait for "安全设置" to be appear
                 page.locator("//a[@id='cf_user_info_securitySettings_common']").wait_for(timeout=0) 
@@ -1971,22 +1970,29 @@ class Huawei(Automation):
                 # delay 2second
                 page.wait_for_timeout(2000)
 
+                # wait for "IAM用户登录" to be appear
+                page.locator("//span[contains(text(),'华为账号登录')]").wait_for(timeout=0) 
+
     # Huawei
-    @staticmethod
-    def huawei():
+    @classmethod
+    def huawei(cls):
         with sync_playwright() as p:  
             
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://auth.huaweicloud.com/authui/login.html?service=https://account-intl.huaweicloud.com/usercenter/#/login", wait_until="domcontentloaded")
             
             for ven_id in huawei_ID:
@@ -2003,7 +2009,7 @@ class Huawei(Automation):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
                 # lastpass search ven and click 
                 # delay 0.5second
@@ -2060,7 +2066,7 @@ class Huawei(Automation):
                 m_id += 1
 
                 # hover to menu
-                pyautogui.moveTo(1533, 158)
+                pyautogui.moveTo(1502, 105)
 
                 # wait for "安全设置" to be appear
                 page.locator("//a[@id='cf_user_info_securitySettings_common']").wait_for(timeout=0) 
@@ -2081,21 +2087,25 @@ class Huawei(Automation):
 class Ucloud(Automation):
 
     # Ucloud
-    @staticmethod
-    def ucloud():
+    @classmethod
+    def ucloud(cls):
         with sync_playwright() as p:  
                 
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://passport.ucloud.cn/#login", wait_until="domcontentloaded")
             
             # wait for "账号登录" to be appear
@@ -2110,7 +2120,7 @@ class Ucloud(Automation):
             # Wait for lastpass vault button image to appear
             image_vault = None
             while image_vault is None:
-                image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
             # lastpass search ven and click 
             # delay 0.5second
@@ -2170,174 +2180,124 @@ class Ucloud(Automation):
 class Other_Cloud(Automation): 
     
     # Gname
-    @staticmethod
-    def gname():
+    @classmethod
+    def gname(cls):
         with sync_playwright() as p:  
                     
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Open a new browser page (gmail)
-            page = browser.pages[0] 
-            page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
-            
-            # Open Second Tabs (gname)
-            page2 = browser.new_page() 
-            page2.goto("https://www.gname.com/login?refer=https%3A%2F%2Fwww.gname.com%2Fuser", wait_until="domcontentloaded")
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
 
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
+            # Open a new browser page
+            page = context.pages[0] 
+            page.goto("https://www.gname.com/login?refer=https%3A%2F%2Fwww.gname.com%2Fuser", wait_until="domcontentloaded")
+        
             for ven_id in gname_ID:
 
                 # if is in english page, switch to chinese version
                 try:
                     # wait for "Please enter your email" to be appear
-                    page2.locator("//input[@placeholder='Please enter your email']").wait_for(timeout=1500)   
+                    page.locator("//input[@placeholder='Please enter your email']").wait_for(timeout=1000)   
                     # wait for ""Please enter the captcha"" to be appear
-                    page2.locator("//input[@placeholder='Please enter the captcha']").wait_for(timeout=1500)   
+                    page.locator("//input[@placeholder='Please enter the captcha']").wait_for(timeout=1000)   
 
                     # hover to change language bar
-                    page2.locator("//span[@class='langx']").hover()
+                    page.locator("//span[@class='langx']").hover()
                     
                     # delay 0.5second
-                    page2.wait_for_timeout(500)
+                    page.wait_for_timeout(500)
 
                     # Click "中文版" switch to login
-                    page2.locator("//li[contains(text(),'中文版')]").click()     
+                    page.locator("//li[contains(text(),'中文版')]").click()     
 
                     # wait for "邮箱登录" to be appear
-                    page2.locator("//span[@class='login-nav-btn data-active']").wait_for(timeout=0)     
+                    page.locator("//span[@class='login-nav-btn data-active']").wait_for(timeout=0)     
 
                     # delay 0.5second
-                    page2.wait_for_timeout(500)
+                    page.wait_for_timeout(500)
                 except:
                     pass
-                
+
                 # wait for "邮箱登录" to be appear
-                page2.locator("//span[@class='login-nav-btn']").wait_for(timeout=0)  
+                page.locator("//span[@class='login-nav-btn']").wait_for(timeout=0)  
 
-                # delay second
-                page2.wait_for_timeout(1000)
-
-                # Click "请输入邮箱验证码" to get 验证码
-                page2.locator('//span[@placeholder="请输入邮箱验证码"]').click() 
+                # Click "密码登录"
+                page.locator("//html/body/div[2]/div/div[2]/div[2]/div/div[1]/span[2]").click() 
 
                 # delay 0.5second
-                page2.wait_for_timeout(500)
+                page.wait_for_timeout(500)
 
-                # Fill credit
-                page2.fill('//input[@placeholder="请输入登录邮箱"]', ven_id)
+                # click lastpass extension       
+                pyautogui.click(x=1416, y=63)
 
+                # Wait for lastpass vault button image to appear
+                image_vault = None
+                while image_vault is None:
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
+
+                # lastpass search ven and click 
                 # delay 0.5second
-                page2.wait_for_timeout(500)
-
-                # Click "请输入邮箱验证码" to get 验证码
-                page2.locator('//span[@placeholder="请输入邮箱验证码"]').click() 
-
-                # wait for "操作提示" to be appear
-                page2.locator("//div[@class='layui-layer-title']").wait_for(timeout=0) 
-
+                page.wait_for_timeout(500)
+                pyautogui.write(ven_id)
                 # delay 0.5second
-                page2.wait_for_timeout(500)
-
-                # Drag & Drop "操作提示"
-                pyautogui.moveTo(633, 536, 0.4)
-                pyautogui.dragTo(1008, 533, button='left', duration=0.4)
-
-                # delay 0.5second
-                page2.wait_for_timeout(500)
-
-                # Switch to Gmail
-                page.bring_to_front() 
-
-                # 等待gmail gname验证码 跳出
-                try:
-                    while True:
-                        try:
-                            # Wait until at least one unread email is visible
-                            page.wait_for_selector("tr.zE:has-text('GNAME'):has-text('【GNAME】登录验证码')", timeout=5000)
-                            break
-                        except:
-                            # Mail Refresh
-                            page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
-                            continue
-
-                    # Check first 5 unread email rows
-                    for i in range(5):
-                        try:
-                            row = page.locator("tr.zE").nth(i)
-                            content = row.inner_text(timeout=3000)
-
-                            if ("GNAME" in content and 
-                                "【GNAME】登录验证码" in content):
-                                row.click()
-                                break
-                        except Exception as e:
-                            continue  # Skip if row not available or timeout
-                except TimeoutError:
-                    print("No unread gname Cloud email appeared in time.")
-
-                # wait for "您的登录验证码为:"
-                page.locator("//div[@align='left']").wait_for(timeout=0)
-
-                # Regex to remove the unnecessary text, and keep only verification code
-                v_code = page.locator("//div[@align='left']").text_content()
-                v_code = re.search(r'\b\d{6}\b', v_code)
-                v_code = v_code.group()
-
-                # remove whitespace
-                v_code = v_code.strip()
-                print(f"Gname Verification Code: {v_code}")
-
+                page.wait_for_timeout(500)
+                # Mouse Click
+                pyautogui.click(x=1260, y=170)
                 # delay 1second
-                page.wait_for_timeout(1000)  
-
-                # Click gmail “inbox”
-                page.locator('(//div[@class="aio UKr6le"])[1]').click()
-                
-                # Switch to gname tab
-                page2.bring_to_front()  
-
-                # delay 1second
-                page2.wait_for_timeout(1000) 
-
-                # Wait for "验证安全邮箱" to be appear
-                expect(page2.locator("//input[@placeholder='请输入邮箱验证码']")).to_be_visible(timeout = 0) 
-
-                # delay 0.5second
-                page2.wait_for_timeout(500)
-
-                # Fill Verification Code
-                page2.fill("//input[@placeholder='请输入邮箱验证码']", v_code)
-
-                # delay 0.5second
-                page2.wait_for_timeout(500)
+                page.wait_for_timeout(1000)
 
                 # Drag & Drop 登入
-                pyautogui.moveTo(867, 561, 0.4)
-                pyautogui.dragTo(1257, 578, button='left', duration=0.4)
+                pyautogui.moveTo(872, 518, 0.4)
+                pyautogui.dragTo(1266, 507, button='left', duration=0.4)
 
-                # wait for "提醒" to be appear
-                page2.locator("//div[@class='layui-layer-title']").wait_for(timeout=0) 
+                # wait for "Gname 一对一高效服务" to be appear
+                try:
+                    page.locator("//h3[contains(text(),'Gname 一对一高效服务')]").wait_for(timeout=1500) 
 
-                # Click 提醒 “确认”
-                page2.locator('//a[contains(text(),"确认")]').click()
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+
+                    # Mouse Click "X"
+                    pyautogui.click(x=1001, y=342)
+                except:
+                    pass
+
+                # if is in english page, switch to chinese version
+                try:
+                    # wait for "Please enter your email" to be appear
+                    page.locator("//strong[normalize-space()='English']").wait_for(timeout=1500)   
+
+                    # hover to change language bar
+                    page.locator("//span[@class='switch-zw']").hover()
+                    
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+
+                    # Click "中文版" switch to login
+                    page.locator("//span[@lang='zhcn']").click()         
+
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+                except:
+                    pass
 
                 # wait for "资金信息" to be appear
-                page2.locator("//span[contains(text(),'资金信息')]").wait_for(timeout=0) 
+                page.locator("//span[contains(text(),'资金信息')]").wait_for(timeout=0) 
 
                 # delay 0.5second
-                page2.wait_for_timeout(500)
-
-                # Mouse Click
-                pyautogui.click(1015,323)
+                page.wait_for_timeout(500)
 
                 # Extract Credit
-                credit = page2.locator("//div[@class='kyye zjxx-item']").text_content()
+                credit = page.locator("//div[@class='kyye zjxx-item']").text_content()
 
                 # Regex
                 credit = re.search(r"\d+\.\d+", credit)
@@ -2355,107 +2315,122 @@ class Other_Cloud(Automation):
 
                 # hover to menu
                 # pyautogui.moveTo(1535, 160)
-                page2.locator("//a[@class='user-rank']").hover()
+                page.locator("//a[@class='user-rank']").hover()
 
                 # wait for "退出" to be appear
-                page2.locator("//a[@id='logout']").wait_for(timeout=0) 
+                page.locator("//a[@id='logout']").wait_for(timeout=0) 
 
                 # Screenshot
                 ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
 
-                # Click "logout" to Logout
-                page2.locator("//a[@id='logout']").click()
-
                 # delay 1second
-                page2.wait_for_timeout(1000)
+                page.wait_for_timeout(1000)
+
+                # Click "logout" to Logout
+                page.locator("//a[@id='logout']").click()
+
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
     # SMS-MAN
-    @staticmethod
-    def sms_man(driver):
+    @classmethod
+    def sms_man(cls):
+        with sync_playwright() as p:  
 
-        # MongoDB ID
-        m_id = 0
+            m_id = 0
 
-        # Launch MongoDB Atlas
-        collection = __class__.mongodb_atlas()
+            # Launch MongoDB Atlas
+            collection = __class__.mongodb_atlas()
 
-        driver.get('https://www.google.com')
-        time.sleep(0.5)
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
 
-        try:
-                pyautogui.click(x=1416, y=62)
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-                # Wait for image Appear
-                image_vault = None
-                while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen('./image/sel_vault.png', grayscale = True)
+            # Open a new browser page
+            page = context.pages[0] 
+            page.goto("https://sms-man.com/", wait_until="domcontentloaded")
 
-                time.sleep(0.5)
-                pyautogui.write("ven326")
-                time.sleep(0.5)
-                pyautogui.click(x=1229, y=173)
-                time.sleep(0.5)
+            try:
+                # wait for "Sign Up" to be appear
+                page.locator("//*[@id='header__btns']/a[1]/span").wait_for(timeout=5000) 
 
-                driver.execute_script("return document.readyState") == "complete"
-                
-                # Wait for 1. Select a service image appear
-                select_Service_img = None
-                while select_Service_img is None:
-                    select_Service_img = pyautogui.locateOnScreen('./image/select_service.png', grayscale = True)
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-                time.sleep(0.5)
+                # Click "Login" 
+                page.locator("//*[@id='header__btns']/a[2]/span").click() 
 
-                # Custom_Screenshot using cv2, due to imagegrab have some bug during screenshort
-                # How to get x, y, width, height ?
-                # First screenshot and save, and copy "wait for image Appear code" and then run code and find the coordinates
-                x, y, width, height = 1203,123,80,24
-                custom_screenshot = cv2.cvtColor(np.array(pyautogui.screenshot(region=(x, y, width, height))), cv2.COLOR_RGB2BGR)
-                cv2.imwrite(('./晚班水位/ven326_tesseract.png'), custom_screenshot)
+                # wait for "Log In" to be appear
+                page.locator("//*[@id='vapp']/main/section/div[2]/div[1]/div[1]/span").wait_for(timeout=0) 
 
-                # Tesseract Image Extract value
-                # Load Image
-                img = Image.open('./晚班水位/ven326_tesseract.png')
-                credit = pytesseract.image_to_string(img)
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-                # Replace
-                credit = credit.replace('$', '')
-                credit = credit.replace('\n', '')
-                
-                # MongoDB Update Data
-                mangos_id = {'_id': ObjectId(sms_MONGODB[m_id])}
-                collection.update_one(mangos_id, {"$set": {"Credit": credit}})
-                print(f"ven326 = {credit}")
-                # mongdb+id +1
-                m_id += 1
-                
-                # Screenshot
-                ImageGrab.grab().save('./晚班水位/ven326.png')
-                
-                # delay 0.5 second
-                time.sleep(0.5)
+                # Wait for Cloudflare verification pass
+                cloudflare_pass = None
+                while cloudflare_pass is None:
+                    cloudflare_pass = pyautogui.locateOnScreen('./image/cloudflare_pass.png', grayscale = True)
 
-                driver.quit()
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            time.sleep(11111)
+                # Click "Login" 
+                page.locator("//*[@id='vapp']/main/section/div[2]/div[1]/form/button/span").click() 
+
+            except:
+                pass
+
+            # Wait for 1. Select a service image appear
+            select_Service_img = None
+            while select_Service_img is None:
+                select_Service_img = pyautogui.locateOnScreen('./image/select_service.png', grayscale = True)
+
+            # delay 0.5second
+            page.wait_for_timeout(500)
+
+            # Extract Credit
+            credit = page.locator("input.user-payment__input").get_attribute("value")
+
+            # Replace
+            credit = credit.replace('$', '')
+            credit = credit.replace('\n', '')
+            
+            # MongoDB Update Data
+            mangos_id = {'_id': ObjectId(sms_MONGODB[m_id])}
+            collection.update_one(mangos_id, {"$set": {"Credit": credit}})
+            print(f"ven326 = {credit}")
+            # mongdb+id +1
+            m_id += 1
+            
+            # Screenshot
+            ImageGrab.grab().save('./晚班水位/ven326.png')
+            
+            # delay 0.5second
+            page.wait_for_timeout(500)
 
     # 7211.com
-    @staticmethod
-    def s211():
+    @classmethod
+    def s211(cls):
         with sync_playwright() as p:  
                     
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://www.7211.com/login.php", wait_until="domcontentloaded")
 
             # wait for "请先登录再下单" to be appear
@@ -2529,21 +2504,25 @@ class Other_Cloud(Automation):
             page.wait_for_timeout(500)
 
     # byteplus
-    @staticmethod
-    def byteplus():
+    @classmethod
+    def byteplus(cls):
         with sync_playwright() as p:  
                     
             # MongoDB ID
             m_id = 0
 
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://console.byteplus.com/auth/login/?redirectURI=https%3A%2F%2Fwww.byteplus.com&_gl=1*1ndxskn*_gcl_au*NTI5NTk5LjE3MjM0MzUyNzg.*_ga*NDc5ODkwMTM2LjE3MjM0MzUyNzg.*_ga_3H57BBC3B9*MTcyMzQzNTI3Ny4xLjAuMTcyMzQzNTI3Ny42MC4wLjA", wait_until="domcontentloaded")
 
             # wait for "Sign in" to be appear
@@ -2558,7 +2537,7 @@ class Other_Cloud(Automation):
             # Wait for lastpass vault button image to appear
             image_vault = None
             while image_vault is None:
-                image_vault = pyautogui.locateOnScreen("./image/vault2.png", grayscale = True)
+                image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
             # lastpass search ven and click 
             # delay 0.5second
@@ -2620,8 +2599,8 @@ class Other_Cloud(Automation):
             # Click "退出“ logout 
             page.locator("//button[@class='bp-nav-btn bp-nav-btn-secondary bp-nav-btn-size-default bp-nav-btn-shape-square index-module__btn--3XoR5']").click()
 
-            # delay 0.5second
-            page.wait_for_timeout(500)
+            # delay 3second
+            page.wait_for_timeout(3000)
 
 # Zentaowater & Noctoolwater Automation
 class Zentao_Noctool(Automation):
@@ -2824,11 +2803,11 @@ Automation.chrome_CDP()
 # Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
-Tencent.tencent_CN()
+# Tencent.tencent_CN()
 # Tencent.tencent_CN_SUB()
 # Tencent.tencent_INT()
 # Tencent.tencent_INT_CAM()
-# Tencent.tencent_ven295()   
+# Tencent.tencent_ven295()
 
 # Huawei
 # Huawei.huawei_OPSADMIN()
@@ -2841,8 +2820,7 @@ Tencent.tencent_CN()
 # Other_Cloud.gname()
 # Other_Cloud.s211()
 # Other_Cloud.byteplus()
-# driver = Selenium_Automation.chrome()
-# Other_Cloud.sms_man(driver)
+# Other_Cloud.sms_man()
 
 # Zentao & Noctool
 # Zentao_Noctool.zentaowater()

@@ -42,7 +42,7 @@ huawei_ID = ("ven303", "ven307", "ven342", "ven345", "ven472", "ven420", "ven425
 ucloud_ID = ("ven281",)
 
 # Gname
-gname_ID = ("morgennames@gmail.com", "g98623@sfhpost.com",)  
+gname_ID = ("ven332", "ven417",)  
 
 # SMS-man
 sms_ID = ("ven326",)
