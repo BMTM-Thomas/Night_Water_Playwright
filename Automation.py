@@ -2596,18 +2596,22 @@ class Other_Cloud(Automation):
 # Zentaowater & Noctoolwater Automation
 class Zentao_Noctool(Automation):
 
-    @staticmethod
-    def zentaowater():
+    @classmethod
+    def zentaowater(cls):
         with sync_playwright() as p:  
-
-            # Launch Chromium
-            browser = __class__.chromium(p)
 
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("https://zr-zentao2023.cccqx.com/zentao/execution-task-26.html", wait_until="domcontentloaded")
 
             # if is in Login PAGE, else skip
@@ -2621,7 +2625,7 @@ class Zentao_Noctool(Automation):
                 # Wait for image Appear
                 image_vault = None
                 while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen('./image/vault2.png', grayscale = True)
+                    image_vault = pyautogui.locateOnScreen('./image/vault3.png', grayscale = True)
                 print("Lastpass Image Vault Loaded") 
 
                 # delay 0.5second
@@ -2643,8 +2647,8 @@ class Zentao_Noctool(Automation):
             ## Wait for "晚班週期性業務(複製用)" to be appear
             iframe.locator("//*[@id='datatable-taskList']/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/a").wait_for(timeout=0) 
 
-            ## Click "晚班週期性業務(複製用)" 
-            iframe.locator("//*[@id='datatable-taskList']/div[2]/div[3]/div/table/tbody/tr[3]/td/a[4]").click()
+            ## Click "edit" 
+            iframe.locator("//*[@id='datatable-taskList']/div[2]/div[3]/div/table/tbody/tr[1]/td/a[4]").click()
 
             ## Wait for "晚班週期性業務(複製用)" to be appear
             iframe.locator("//*[@id='dataform']/div[2]/div[1]/div/div[1]/div[1]").wait_for(timeout=0) 
@@ -2655,20 +2659,31 @@ class Zentao_Noctool(Automation):
             # delay 0.5second
             page.wait_for_timeout(500)
             
-            # Mouse Click
-            pyautogui.click(x=593, y=691)
+            ## Click "X" 
+            try:
+                iframe.locator("//div[@id='pri_chosen']//abbr[@class='search-choice-close']").click(timeout=1000)
+            except:
+                # Mouse Click
+                pyautogui.click(x=365, y=749)
+                pass
+
             # delay 0.5second
             page.wait_for_timeout(500) 
+
             # Mouse Click
-            pyautogui.click(x=553, y=782)
+            pyautogui.click(x=365, y=749)
+
             # delay 0.5second
             page.wait_for_timeout(500)
-            # keyboard Enter
+
+            # keyboard Enter 8 times
             pyautogui.press('enter', presses = 8)
+
             # delay 0.5second
             page.wait_for_timeout(500)
+            
             # Mouse Click
-            pyautogui.click(x=297, y=640)
+            pyautogui.click(x=349, y=652)
 
             # delay 0.5second
             page.wait_for_timeout(500)
@@ -2721,21 +2736,22 @@ class Zentao_Noctool(Automation):
             # delay 3seconds
             page.wait_for_timeout(3000)  
 
-    @staticmethod
-    def noctoolwater():
+    @classmethod
+    def noctoolwater(cls):
         with sync_playwright() as p:  
                     
-            # MongoDB ID
-            m_id = 0
-
-            # Launch Chromium
-            browser = __class__.chromium(p)
-
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
+            # Wait for Chrome CDP to be ready
+            cls.wait_for_cdp_ready()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
             # Open a new browser page
-            page = browser.pages[0] 
+            page = context.pages[0] 
             page.goto("http://10.77.1.196/stocks/", wait_until="domcontentloaded")
 
             # Wait for "記錄列表" to be appear
@@ -2775,11 +2791,23 @@ class Zentao_Noctool(Automation):
 
                     # Fill credit
                     page.fill('//input[@id="id_stocks"]', credit_value)
+                    # page.keyboard.press("Enter")  
 
                     print(f"{ven_id}= Previous: {pre_credit}, Actual: {credit_value} \n") 
 
                     # delay 0.5second
                     page.wait_for_timeout(500)
+
+    def low_water ():
+        
+        print("\n【低于安全水位】\n")
+        collection = __class__.mongodb_atlas()
+        documents = collection.find()
+
+        for doc in documents:
+            if float(doc.get("Credit", 0)) < float(doc.get("Secure_Credit", 0)):
+                print(f"{doc.get('Ven_Machine')} 已低于安全流量 (当前存量：{doc.get('Credit')} {doc.get('Unit')}, 安全存量：{doc.get('Secure_Credit')} {doc.get('Unit')})")
+        print("\n\n")
 
 # Uncomment the following lines to run the automation scripts
 
@@ -2810,9 +2838,10 @@ Automation.chrome_CDP()
 # Other
 # Other_Cloud.gname()
 # Other_Cloud.s211()
-Other_Cloud.byteplus()
+# Other_Cloud.byteplus()
 # Other_Cloud.sms_man()
 
 # Zentao & Noctool
 # Zentao_Noctool.zentaowater()
 # Zentao_Noctool.noctoolwater()
+# Zentao_Noctool.low_water()
