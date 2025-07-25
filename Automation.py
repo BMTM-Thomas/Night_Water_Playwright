@@ -229,8 +229,6 @@ class Automation:
         # Access Collection
         return db["Night_Database_2"]
     
-        # Chromium Browser (def chromium can delete if no use)
-    
     # Chromium Browser
     @classmethod
     def chromium(cls, p):
@@ -329,7 +327,7 @@ class Aliyun(Automation, JavaScript_Style):
    
             # MongoDB ID
             m_id = 0
-
+            
             # Launch MongoDB Atlas
             collection = cls.mongodb_atlas()
 
@@ -343,7 +341,7 @@ class Aliyun(Automation, JavaScript_Style):
             # Open a new browser page
             page = context.pages[0] if context.pages else context.new_page()
             page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home", wait_until="domcontentloaded", timeout= 0)
-            
+
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
                 if page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=1000):
@@ -2596,6 +2594,7 @@ class Other_Cloud(Automation):
 # Zentaowater & Noctoolwater Automation
 class Zentao_Noctool(Automation):
 
+    # zentao 水位记录
     @classmethod
     def zentaowater(cls):
         with sync_playwright() as p:  
@@ -2650,7 +2649,7 @@ class Zentao_Noctool(Automation):
             ## Click "edit" 
             iframe.locator("//*[@id='datatable-taskList']/div[2]/div[3]/div/table/tbody/tr[1]/td/a[4]").click()
 
-            ## Wait for "晚班週期性業務(複製用)" to be appear
+            ## Wait for "任务名称" to be appear
             iframe.locator("//*[@id='dataform']/div[2]/div[1]/div/div[1]/div[1]").wait_for(timeout=0) 
 
             ## Wait for "备注" to be appear
@@ -2724,9 +2723,7 @@ class Zentao_Noctool(Automation):
 
                     # Next Line
                     pyautogui.press('enter', presses = 2)
-                    # delay 0.5
-                    # 
-                    # second
+                    # delay 0.5 second
                     page.wait_for_timeout(500) 
 
 
@@ -2736,6 +2733,7 @@ class Zentao_Noctool(Automation):
             # delay 3seconds
             page.wait_for_timeout(3000)  
 
+    # noctool 水位记录
     @classmethod
     def noctoolwater(cls):
         with sync_playwright() as p:  
@@ -2798,6 +2796,7 @@ class Zentao_Noctool(Automation):
                     # delay 0.5second
                     page.wait_for_timeout(500)
 
+    # 检查 【安全水位】
     def low_water ():
         
         print("\n【低于安全水位】\n")
@@ -2844,4 +2843,4 @@ Automation.chrome_CDP()
 # Zentao & Noctool
 # Zentao_Noctool.zentaowater()
 # Zentao_Noctool.noctoolwater()
-# Zentao_Noctool.low_water()
+Zentao_Noctool.low_water()
