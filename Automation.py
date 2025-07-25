@@ -2217,10 +2217,7 @@ class Other_Cloud(Automation):
                     page.wait_for_timeout(500)
 
                     # Click "中文版" switch to login
-                    page.locator("//li[contains(text(),'中文版')]").click()     
-
-                    # wait for "邮箱登录" to be appear
-                    page.locator("//span[@class='login-nav-btn data-active']").wait_for(timeout=0)     
+                    page.locator("//li[contains(text(),'中文版')]").click()      
 
                     # delay 0.5second
                     page.wait_for_timeout(500)
@@ -2360,7 +2357,7 @@ class Other_Cloud(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
-                # Click "Login" 
+                # Click "Log In" 
                 page.locator("//*[@id='header__btns']/a[2]/span").click() 
 
                 # wait for "Log In" to be appear
@@ -2523,84 +2520,78 @@ class Other_Cloud(Automation):
 
             # Open a new browser page
             page = context.pages[0] 
-            page.goto("https://console.byteplus.com/auth/login/?redirectURI=https%3A%2F%2Fwww.byteplus.com&_gl=1*1ndxskn*_gcl_au*NTI5NTk5LjE3MjM0MzUyNzg.*_ga*NDc5ODkwMTM2LjE3MjM0MzUyNzg.*_ga_3H57BBC3B9*MTcyMzQzNTI3Ny4xLjAuMTcyMzQzNTI3Ny42MC4wLjA", wait_until="domcontentloaded")
+            
+            for ven_id in byteplus_ID:
 
-            # wait for "Sign in" to be appear
-            page.locator("//div[@class='title-_WOXN_']").wait_for(timeout=0)
+                page.goto("https://console.byteplus.com/finance/overview", wait_until="domcontentloaded")
 
-            # delay 0.5second
-            page.wait_for_timeout(500) 
+                # wait for "Sign in" to be appear
+                page.locator("//div[@class='title-_WOXN_']").wait_for(timeout=0)
 
-            # click lastpass extension       
-            pyautogui.click(x=1416, y=63)
+                # delay 0.5second
+                page.wait_for_timeout(500) 
 
-            # Wait for lastpass vault button image to appear
-            image_vault = None
-            while image_vault is None:
-                image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
+                # click lastpass extension       
+                pyautogui.click(x=1416, y=63)
 
-            # lastpass search ven and click 
-            # delay 0.5second
-            page.wait_for_timeout(500)
-            pyautogui.write("ven467")
-            # delay 0.5second
-            page.wait_for_timeout(500)
-            # Mouse Click
-            pyautogui.click(x=1260, y=170)
-            # delay 0.5second
-            page.wait_for_timeout(500)
+                # Wait for lastpass vault button image to appear
+                image_vault = None
+                while image_vault is None:
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
-            # Click "Sign in" to Login
-            page.locator("//button[@type='submit']").click()
+                # lastpass search ven and click 
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                pyautogui.write(ven_id)
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                # Mouse Click
+                pyautogui.click(x=1260, y=170)
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-            # wait for "Console" to be appear
-            page.locator("//a[@class='arco-btn arco-btn-outline arco-btn-size-default arco-btn-shape-square arco-btn-link outlineBtn_e0caf pc-display-only_bef34']//span[contains(text(),'Console')]").wait_for(timeout=0) 
+                # Click "Sign in" to Login
+                page.locator("//button[@type='submit']").click()
 
-            # delay 0.5second
-            page.wait_for_timeout(500)
+                # wait for "账户总览" to be appear
+                page.locator("//div[@class='mZis6']").wait_for(timeout=0) 
 
-            # go to 费用
-            page.goto("https://console.byteplus.com/finance/overview", wait_until="domcontentloaded")
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-            # wait for "账户总览" to be appear
-            page.locator("//div[@class='mZis6']").wait_for(timeout=0) 
+                # Extract Credit
+                credit = page.locator("//div[5]//div[1]//p[2]").text_content()
 
-            # delay 0.5second
-            page.wait_for_timeout(500)
+                # Re
+                credit = re.sub(r'[^\d.]', '', credit)
 
-            # Extract Credit
-            credit = page.locator("//div[5]//div[1]//p[2]").text_content()
+                # Remove Whitespace
+                credit = credit.strip()
 
-            # Re
-            credit = re.sub(r'[^\d.]', '', credit)
+                # MongoDB Update Data
+                mangos_id = {'_id': ObjectId(byteplus_MONGODB[m_id])}
+                collection.update_one(mangos_id, {"$set": {"Credit": credit}})
+                print(f"{ven_id} = {credit}")
+                # mongdb+id +1
+                m_id += 1
 
-            # Remove Whitespace
-            credit = credit.strip()
+                # Screenshot
+                ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
 
-            # MongoDB Update Data
-            mangos_id = {'_id': ObjectId(byteplus_MONGODB[m_id])}
-            collection.update_one(mangos_id, {"$set": {"Credit": credit}})
-            print(f"ven467 = {credit}")
-            # mongdb+id +1
-            m_id += 1
+                # Click logout menu 
+                page.locator("//div[@class='index-module__user-avatar-item--2dVCE']").click()
 
-            # Screenshot
-            ImageGrab.grab().save('./晚班水位/ven467.png')
+                # wait for "费用中心" to be appear
+                page.locator("//a[@class='index-module__item--13iOw']//div[contains(text(),'费用中心')]").wait_for(timeout=0)
 
-            # Click logout menu 
-            page.locator("//div[@class='index-module__user-avatar-item--2dVCE']").click()
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-            # wait for "费用中心" to be appear
-            page.locator("//a[@class='index-module__item--13iOw']//div[contains(text(),'费用中心')]").wait_for(timeout=0)
+                # Click "退出“ logout 
+                page.locator("//button[@class='bp-nav-btn bp-nav-btn-secondary bp-nav-btn-size-default bp-nav-btn-shape-square index-module__btn--3XoR5']").click()
 
-            # delay 0.5second
-            page.wait_for_timeout(500)
-
-            # Click "退出“ logout 
-            page.locator("//button[@class='bp-nav-btn bp-nav-btn-secondary bp-nav-btn-size-default bp-nav-btn-shape-square index-module__btn--3XoR5']").click()
-
-            # delay 3second
-            page.wait_for_timeout(3000)
+                # delay 5second
+                page.wait_for_timeout(5000)
 
 # Zentaowater & Noctoolwater Automation
 class Zentao_Noctool(Automation):
@@ -2819,7 +2810,7 @@ Automation.chrome_CDP()
 # Other
 # Other_Cloud.gname()
 # Other_Cloud.s211()
-# Other_Cloud.byteplus()
+Other_Cloud.byteplus()
 # Other_Cloud.sms_man()
 
 # Zentao & Noctool
