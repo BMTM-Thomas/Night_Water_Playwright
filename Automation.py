@@ -5,7 +5,6 @@ import atexit
 import base64
 import random
 import certifi
-import logging
 import requests
 import pyautogui
 import pyperclip
@@ -15,7 +14,6 @@ from openai import OpenAI
 from bson import ObjectId 
 from List_Noctool import *
 from datetime import timedelta
-from selenium import webdriver  
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from PIL import ImageGrab
@@ -197,7 +195,10 @@ class Automation:
         stdout=subprocess.DEVNULL,  # ✅ hide chrome cdp logs
         stderr=subprocess.DEVNULL   # ✅ hide chrome cdp logs
         )
-        print("Chrome launched. Waiting...")
+        print("Chrome launched.....")
+    
+        # wait for Chrome CDP launch...
+        cls.wait_for_cdp_ready()
 
         atexit.register(cls.cleanup)
 
@@ -248,9 +249,6 @@ class Aliyun(Automation, JavaScript_Style):
    
             # MongoDB ID
             m_id = 0
-            
-            # Launch MongoDB Atlas
-            collection = cls.mongodb_atlas()
 
             # Wait for Chrome CDP to be ready
             cls.wait_for_cdp_ready()
@@ -403,12 +401,6 @@ class Aliyun(Automation, JavaScript_Style):
             
             # MongoDB ID
             m_id = 0
-
-            # Launch MongoDB Atlas
-            collection = cls.mongodb_atlas()
-
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -566,9 +558,6 @@ class Aliyun(Automation, JavaScript_Style):
     def watermelon_aliyun_INT(cls):
         with sync_playwright() as p: 
                     
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -723,12 +712,6 @@ class Aliyun(Automation, JavaScript_Style):
             
             # MongoDB ID
             m_id = 0    
-
-            # Launch MongoDB Atlas
-            collection = cls.mongodb_atlas()
-
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -961,9 +944,6 @@ class Aliyun(Automation, JavaScript_Style):
     @classmethod
     def watermelon_aliyun_INT_RAM(cls):
         with sync_playwright() as p: 
-             
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -1209,9 +1189,6 @@ class Tencent(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -1364,9 +1341,6 @@ class Tencent(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -1457,9 +1431,6 @@ class Tencent(Automation):
             
             # MongoDB ID
             m_id = 0
-
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
 
             # Wait for Chrome CDP to be ready
             cls.wait_for_cdp_ready()
@@ -1568,9 +1539,6 @@ class Tencent(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -1668,9 +1636,6 @@ class Tencent(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -1765,9 +1730,6 @@ class Huawei(Automation):
 
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
-
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -1903,9 +1865,6 @@ class Huawei(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -2019,9 +1978,6 @@ class Ucloud(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -2111,9 +2067,6 @@ class Other_Cloud(Automation):
 
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
-
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2258,9 +2211,6 @@ class Other_Cloud(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -2337,9 +2287,6 @@ class Other_Cloud(Automation):
 
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
-
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2430,9 +2377,6 @@ class Other_Cloud(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -2522,9 +2466,6 @@ class Zentao_Noctool(Automation):
 
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
-
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2662,9 +2603,6 @@ class Zentao_Noctool(Automation):
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
-            # Wait for Chrome CDP to be ready
-            cls.wait_for_cdp_ready()
-
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
@@ -2737,7 +2675,7 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-# Aliyun.aliyun_CN()
+Aliyun.aliyun_CN()
 # Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
 # Aliyun.aliyun_INT_RAM()
