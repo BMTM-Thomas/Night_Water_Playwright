@@ -14,6 +14,7 @@ from List_Zentao import *
 from openai import OpenAI
 from bson import ObjectId 
 from List_Noctool import *
+from datetime import timedelta
 from selenium import webdriver  
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -85,36 +86,6 @@ class MyChatGPT:
             else:
                 print(f"[!] Unknown position: {pos}")
 
-# Logging Setup
-class Logger:
-    """Enhanced logging setup"""
-    
-    @staticmethod
-    def setup_logger(name: str = "aliyun_automation", level: int = logging.INFO) -> logging.Logger:
-        logger = logging.getLogger(name)
-        logger.setLevel(level)
-        
-        if not logger.handlers:
-            # Create console handler
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(level)
-            
-            # Create file handler
-            file_handler = logging.FileHandler('automation.log')
-            file_handler.setLevel(level)
-            
-            # Create formatter
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            console_handler.setFormatter(formatter)
-            file_handler.setFormatter(formatter)
-            
-            logger.addHandler(console_handler)
-            logger.addHandler(file_handler)
-        
-        return logger
-
 # Javascript element color
 class JavaScript_Style:
 
@@ -182,28 +153,6 @@ class JavaScript_Style:
             }
         """, [x, y])
 
-# Selenium Automation Settings
-class Selenium_Automation:
-    @staticmethod
-    def chrome():
-        options = webdriver.ChromeOptions()
-        options.add_argument("--user-data-dir=\\Users\\Thomas\\Library\\Application Support\\Google\\Chrome\\")
-        options.add_argument('profile-directory=Profile 3')
-        options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--disable-popup-blocking')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--no-sandbox')
-        options.add_argument('start-maximized') 
-        options.add_argument('--no-default-browser-check')
-        options.add_argument('--no-first-run')
-        options.add_argument('--hide-crash-restore-bubble')
-        options.add_experimental_option('excludeSwitches', ['enable-automation','enable-logging'])
-        options.add_experimental_option('useAutomationExtension', False)
-        driver = webdriver.Chrome(options=options)
-
-        return driver
-
 # Plawright Automation Settings
 class Automation:
 
@@ -229,34 +178,6 @@ class Automation:
         # Access Collection
         return db["Night_Database_2"]
     
-    # Chromium Browser
-    @classmethod
-    def chromium(cls, p):
-        browser = p.chromium.launch_persistent_context(
-            cls.USER_DATA_DIR,
-            headless=False,  # Extensions do NOT work in headless mode
-            args=[
-                f"--disable-extensions-except={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
-                f"--load-extension={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
-                "--disable-infobars",
-                "--disable-blink-features=AutomationControlled",
-                "--disable-popup-blocking",
-                "--disable-gpu",
-                "--disable-dev-shm-usage",
-                "--disable-logging", 
-                "--no-sandbox",
-                "--start-maximized",
-                "--no-default-browser-check",
-                "--no-first-run",
-                "--hide-crash-restore-bubble",
-                "--disable-web-security",
-                "--allow-running-insecure-content",
-            ],
-            no_viewport=True,
-            locale="en-US",
-        )
-        return browser
-
     # Chrome CDP 
     chrome_proc = None
     @classmethod
@@ -1550,12 +1471,12 @@ class Tencent(Automation):
             # Open a new browser page
             page = context.pages[0] 
             page.goto("https://www.tencentcloud.com/zh/account/login?s_url=https://console.tencentcloud.com/expense/rmc/accountinfo", wait_until="domcontentloaded")
-
-            # if is "子用户登录" then click "切换登录方式", else skip
+            
+            # if is "CAM用户登录" then click "切换登录方式", else skip
             try:
-                if page.locator("text='CAM用户登录'").is_visible(timeout=2000):
+                if page.locator("div.LoginCommonBox_clg-mod-title__gpSTl.tcas-login-panel__box-title:has-text('CAM用户登录')").is_visible():
                     # Click "主账号登录"
-                    page.locator("//a[contains(text(),'主账号登录')]").click()
+                    page.locator("//button[contains(text(),'主账号登录')]").click()
             except:
                 pass
 
@@ -1594,8 +1515,8 @@ class Tencent(Automation):
                 # wait for "可用额度" to be appear
                 page.locator("//h3[contains(text(),'可用额度')]").wait_for(timeout=0) 
 
-                # delay 1second
-                page.wait_for_timeout(1000)
+                # delay 1.5second
+                page.wait_for_timeout(1500)
 
                 # Extract Credit
                 credit = page.locator(f"(//div[@class='data-value arrows'])[1]").text_content()
@@ -1809,7 +1730,7 @@ class Tencent(Automation):
             # MongoDB Update Data
             mangos_id = {'_id': ObjectId(tencent_INT_ven295_MONGODB[m_id])}
             collection.update_one(mangos_id, {"$set": {"Credit": credit}})
-            print(f"ven295 = {credit}")
+            print(f"ven295= {credit}")
             # mongdb+id +1
             m_id += 1
 
@@ -2081,6 +2002,9 @@ class Huawei(Automation):
                 # delay 1second
                 page.wait_for_timeout(1000)
 
+            # delay 3second
+            page.wait_for_timeout(3000)
+
 # Ucloud Automation
 class Ucloud(Automation):
 
@@ -2257,12 +2181,6 @@ class Other_Cloud(Automation):
                 # wait for "Gname 一对一高效服务" to be appear
                 try:
                     page.locator("//h3[contains(text(),'Gname 一对一高效服务')]").wait_for(timeout=1500) 
-
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-
-                    # Mouse Click "X"
-                    pyautogui.click(x=1001, y=342)
                 except:
                     pass
 
@@ -2290,6 +2208,9 @@ class Other_Cloud(Automation):
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
+
+                # Mouse Click "X"
+                pyautogui.click(x=1001, y=342)
 
                 # Extract Credit
                 credit = page.locator("//div[@class='kyye zjxx-item']").text_content()
@@ -2810,6 +2731,8 @@ class Zentao_Noctool(Automation):
 
 # Uncomment the following lines to run the automation scripts
 
+start = time.perf_counter()
+
 # Launch Chrome CDP
 Automation.chrome_CDP()
 
@@ -2843,4 +2766,11 @@ Automation.chrome_CDP()
 # Zentao & Noctool
 # Zentao_Noctool.zentaowater()
 # Zentao_Noctool.noctoolwater()
-Zentao_Noctool.low_water()
+# Zentao_Noctool.low_water()
+
+end = time.perf_counter()
+elapsed = end - start  # total seconds as float
+
+# Convert to hours:minutes:seconds format
+readable = str(timedelta(seconds=elapsed))
+print("Elapsed time:", readable)
