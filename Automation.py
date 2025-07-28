@@ -250,6 +250,9 @@ class Aliyun(Automation, JavaScript_Style):
             # MongoDB ID
             m_id = 0
 
+            # Launch MongoDB Atlas
+            collection = __class__.mongodb_atlas()
+
             # Wait for Chrome CDP to be ready
             cls.wait_for_cdp_ready()
 
@@ -401,6 +404,9 @@ class Aliyun(Automation, JavaScript_Style):
             
             # MongoDB ID
             m_id = 0
+
+            # Launch MongoDB Atlas
+            collection = __class__.mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -712,6 +718,9 @@ class Aliyun(Automation, JavaScript_Style):
             
             # MongoDB ID
             m_id = 0    
+
+            # Launch MongoDB Atlas
+            collection = __class__.mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2669,6 +2678,7 @@ class Zentao_Noctool(Automation):
 
 # Uncomment the following lines to run the automation scripts
 
+# Timer, Start Time
 start = time.perf_counter()
 
 # Launch Chrome CDP
@@ -2706,6 +2716,7 @@ Aliyun.aliyun_CN()
 # Zentao_Noctool.noctoolwater()
 # Zentao_Noctool.low_water()
 
+# Timer, End Time
 end = time.perf_counter()
 elapsed = end - start  # total seconds as float
 
