@@ -233,13 +233,13 @@ class Aliyun(Automation, JavaScript_Style):
     def drag_random(cls, x, y):
         random_x = random.randint(*x)
         random_y = random.randint(*y)
-        pyautogui.moveTo(random_x, random_y, duration=0.15)
+        pyautogui.moveTo(random_x, random_y, duration=0.14)
         return random_x, random_y
     @classmethod
     def drop_random(cls, x, y):
         random_x = random.randint(*x)
         random_y = random.randint(*y)
-        pyautogui.dragTo(random_x, random_y, button='left', duration=0.13)
+        pyautogui.dragTo(random_x, random_y, button='left', duration=0.14)
         return random_x, random_y
 
     # Aliyun 中国站
@@ -266,8 +266,12 @@ class Aliyun(Automation, JavaScript_Style):
 
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
-                if page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=1000):
+                if page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=2000):
+                    __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "在 'RAM 用户登录' 切换到 '主账号登录'")  # Wait for "RAM 用户登录" to be appear
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
                     # Click "主账号登录"
+                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Click '立即登录'")
                     page.locator("//span[contains(text(),'主账号登录')]").click()
                     # delay 1second
                     page.wait_for_timeout(1000)
@@ -283,7 +287,6 @@ class Aliyun(Automation, JavaScript_Style):
 
                 ## Wait for "立即登录" to be appear
                 __class__.red_Check(iframe.locator("//button[contains(text(),'立即登录')]"), "Wait '立即登录'")
-                __class__.green_Check(iframe.locator("//button[contains(text(),'立即登录')]"), "OK! Ready to Click !")
 
                 # click 账号登录 lastpass extension
                 pyautogui.click(x=1326, y=383)
@@ -315,19 +318,16 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # due to ven387 ven407 NEW UI change, ven338 remain old UI
                 if ven_id == "ven338":
-                    # Wait for "简体中文" 
+                    # Wait for "可用额度" 
                     __class__.red_Check(page.locator("//span[@class='sc-jWgTtR leLjBy'][contains(text(),'可用额度')]"), "Wait '可用额度'")
-                    __class__.green_Check(page.locator("//span[@class='sc-jWgTtR leLjBy'][contains(text(),'可用额度')]"), "OK!")
                     
                     # Extract Credit
-                    __class__.red_Check(page.locator("//span[@class='amount']//span[1]"), "Wait '可用额度'")
-                    __class__.green_Check(page.locator("//span[@class='amount']//span[1]"), "Extract Credit")
+                    __class__.red_Check(page.locator("//span[@class='amount']//span[1]"), "Extract Credit '费用'")
                     credit = page.locator("//span[@class='amount']//span[1]").text_content() 
 
                 else:
                     # Wait for "账户可用额度"
                     __class__.red_Check(page.locator("//div[@class='label'][contains(text(),'账户可用额度')]"), "Wait '账户可用额度'")
-                    __class__.green_Check(page.locator("//div[@class='label'][contains(text(),'账户可用额度')]"), "OK!")
 
                     try:
                         # wait until the * or "账户可用额度*充值汇款提现汇款认领收支明细详情" disappear
@@ -336,8 +336,7 @@ class Aliyun(Automation, JavaScript_Style):
                         pass
 
                     # Extract Credit
-                    __class__.red_Check(page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']"), "Wait '账户可用额度'")
-                    __class__.green_Check(page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']"), "Extract Credit!")
+                    __class__.red_Check(page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']"), "Extract Credit '账户可用额度'")
                     credit = page.locator("//div[@id='home-overview-availableAmount']//div[@class='money']").text_content() 
     
                 # Replace
@@ -353,11 +352,9 @@ class Aliyun(Automation, JavaScript_Style):
                 
                 # Wait for "主账号" to be appear
                 __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                __class__.green_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
                 
                 # hover to menu
                 __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
-                __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
                 page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # if hover menu doesnt appear, rehover again
@@ -366,7 +363,6 @@ class Aliyun(Automation, JavaScript_Style):
                         # Wait for "权限与安全" to be appear
                         page.locator("//span[contains(text(),'权限与安全')]").wait_for(timeout=1000) 
                         __class__.red_Check(page.locator("//span[contains(text(),'权限与安全')]"), "Wait '权限与安全'")
-                        __class__.green_Check(page.locator("//span[contains(text(),'权限与安全')]"), "OK!")
                         break
                     except:
                         # Mouse Click
@@ -374,9 +370,9 @@ class Aliyun(Automation, JavaScript_Style):
                         # delay 0.5second
                         page.wait_for_timeout(500)
                         # hover to menu
-                        __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
-                        __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!'")
+                        __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu'")
                         page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -386,7 +382,6 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Click "退出登录" Logout
                 __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                __class__.green_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
                 page.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
                 # delay 3seconds
@@ -419,7 +414,11 @@ class Aliyun(Automation, JavaScript_Style):
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
                 if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
+                    __class__.red_Check(page.locator(":has-text('RAM 用户登录')"), "Wait 'RAM 用户登录'")
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
                     # Click "主账号登录"
+                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
                     page.locator("//span[contains(text(),'主账号登录')]").click()
                     # delay 0.5second
                     page.wait_for_timeout(500)
@@ -434,11 +433,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "简体中文" to be appear
                 __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
-                __class__.green_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "OK!")
 
                 ## Wait for "登录" to be appear
                 __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '登录'")
-                __class__.green_Check(iframe.locator("//input[@id='fm-login-submit']"), "Ready to Click!")
                 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=62)
@@ -460,6 +457,7 @@ class Aliyun(Automation, JavaScript_Style):
                 page.wait_for_timeout(500)
 
                 ## Click "登录" to Login
+                __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                 iframe.locator('#fm-login-submit').click()
 
                 # Simulate Human move mouse, to prevent bot detect
@@ -499,11 +497,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait "正常" to be appear
                 __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
-                __class__.green_Check(page.locator("//span[contains(text(),'正常')]"), "OK!")
                 
                 # Extract Credit
-                __class__.red_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit!")
-                __class__.green_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit!")
+                __class__.red_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit ‘费用’")
                 credit = page.locator("//div[@class='ng-binding']").text_content()
  
                 # Replace
@@ -519,14 +515,12 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for "主账号" to be appear
                 page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
                 __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                __class__.green_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
                 
                 # delay 0.3second
                 page.wait_for_timeout(300)
 
                 # hover to menu
                 __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
                 page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # if hover menu doesnt appear, rehover again
@@ -535,7 +529,6 @@ class Aliyun(Automation, JavaScript_Style):
                         # Wait for "安全设置" to be appear
                         expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
                         __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
-                        __class__.green_Check(page.locator("//span[contains(text(),'安全设置')]"), "OK!")
                         break
                     except:
                         # Mouse Click
@@ -553,7 +546,6 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Click "退出登录" Logout
                 __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                __class__.green_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
                 page.locator("//a[contains(text(),'退出登录')]").click(force=True)
                 
                 # delay 0.5second
@@ -575,7 +567,11 @@ class Aliyun(Automation, JavaScript_Style):
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
                 if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
+                    __class__.red_Check(page.locator(":has-text('RAM 用户登录')"), "Wait 'RAM 用户登录'")
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
                     # Click "主账号登录"
+                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
                     page.locator("//span[contains(text(),'主账号登录')]").click()
                     # delay 0.5second
                     page.wait_for_timeout(500)
@@ -593,11 +589,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "简体中文" to be appear
                 __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
-                __class__.green_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "OK!")
 
                 ## Wait for "登录" to be appear
                 __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '简体中文'")
-                __class__.green_Check(iframe.locator("//input[@id='fm-login-submit']"), "Ready to Click!")
                 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=63)
@@ -619,6 +613,7 @@ class Aliyun(Automation, JavaScript_Style):
                 page.wait_for_timeout(500)
 
                 ## Click "登录" to Login
+                __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                 iframe.locator('#fm-login-submit').click()
 
                 # Simulate Human move mouse, to prevent bot detect
@@ -657,12 +652,12 @@ class Aliyun(Automation, JavaScript_Style):
                     pass    
                 
                 # Wait "VISA Logo" to be appear
-                __class__.red_Check(page.locator("//span[@class='payment-cardrand-visa']"), "Wait 'VISA LOGO APPEAR'")
-                __class__.green_Check(page.locator("//span[@class='payment-cardrand-visa']"), "OK!")
+                __class__.red_Check(page.locator("//span[@class='payment-cardrand-visa']"), "Wait 'VISA Logo Appear'")
 
                 # Check if overdue payment
                 try:
                     page.wait_for_selector("//span[@ng-bind-html='item']", timeout=1500)
+                    __class__.red_Check(page.locator("//span[@ng-bind-html='item']"), "欠费 欠费 欠费 欠费 欠费 欠费")
                     overdue = page.locator("//span[@ng-bind-html='item']").text_content()
                     print(f"{ven_id}= ", overdue)   
                 except:
@@ -674,11 +669,9 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for "主账号" to be appear
                 page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
                 __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                __class__.green_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
 
                 # hover to menu
                 __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                __class__.green_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
                 page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # if hover menu doesnt appear, rehover again
@@ -687,7 +680,6 @@ class Aliyun(Automation, JavaScript_Style):
                         # Wait for "安全设置" to be appear
                         expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
                         __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
-                        __class__.green_Check(page.locator("//span[contains(text(),'安全设置')]"), "OK!")
                         break
                     except:
                         # Mouse Click
@@ -697,15 +689,11 @@ class Aliyun(Automation, JavaScript_Style):
                         # hover to menu
                         page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
-                # Wait for "安全设置" to be appear
-                expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 0) 
-
                 # delay 0.3second
                 page.wait_for_timeout(300)
 
                 # Click "退出登录" Logout
                 __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                __class__.green_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
                 page.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
                 # delay 3seconds
@@ -726,7 +714,7 @@ class Aliyun(Automation, JavaScript_Style):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
         
-            # Create Browser Tabs
+            # Create Browser Tab, if tab is not available, create new tab, else reuse
             page = context.pages[0] if context.pages else context.new_page()
             page2 = context.new_page()
 
@@ -735,8 +723,8 @@ class Aliyun(Automation, JavaScript_Style):
             # Second Tab Navigate to Aliyun Ram
             page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
-            # delay 1.5seconds
-            page2.wait_for_timeout(1500)
+            # delay 2seconds
+            page2.wait_for_timeout(2000)
 
             # Refresh page
             page2.reload()
@@ -746,8 +734,7 @@ class Aliyun(Automation, JavaScript_Style):
                 
                 # wait for "RAM 用户登录" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
-                __class__.green_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "OK!")
-        
+
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
                 while image_vault_0 is None:
@@ -774,36 +761,30 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Click "下一步" 
                 __class__.red_Check(page2.locator("//button[@type='button']"), "Wait '下一步'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//button[@type='button']"), "OK! Click 下一步")
                 page2.locator('//button[@type="button"]').click()
                 
                 # Wait for "*用户密码" appear
                 __class__.red_Check(page2.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//label[contains(text(),'用户密码')]"), "OK!")
 
                 # delay 0.3second
                 page2.wait_for_timeout(300)
 
-                # Click “登入”
-                __class__.red_Check(page2.locator("//button[@type='submit']"), "Wait '*用户密码'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//button[@type='submit']"), "OK!")
-                page2.locator('//button[@type="submit"]').click()
+                # Click “登录”
+                while True:
+                    if page2.locator("//h3[contains(text(),'验证安全邮箱')]").is_visible():
+                        break
+
+                    __class__.red_Check(page2.locator("//button[@type='submit']"), "Click '登录'")
+                    page2.locator('//button[@type="submit"]').click()
+
+                    # delay 3second
+                    page2.wait_for_timeout(3000)
                 
-                # delay 0.3second
-                page2.wait_for_timeout(300)
-
                 # Wait for "验证安全邮箱" appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "OK!")
 
                 # Click "获取验证码" 
-                __class__.red_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "Wait '验证安全邮箱'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "OK!")
+                __class__.red_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "Click '验证安全邮箱'")
                 page2.locator('//span[contains(text(),"获取验证码")]').click()
 
                 # Switch to Gmail
@@ -811,33 +792,37 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # 等待gmail alibaba验证码 跳出
                 try:
-                    while True:
-                        try:
-                            # Wait until at least one unread email is visible
-                            page.wait_for_selector("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code'):has-text('- This email is sent by Alibaba Cloud and is automatically generated. Please do not reply directly. ')", timeout=5000)
+                    # Get initial count of unread Alibaba verification emails
+                    initial_unread = page.locator("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code')").count()
+
+                    # Loop until new unread mail arrives (max 1 minute)
+                    for attempt in range(12):
+                        current_unread = page.locator("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code')").count()
+
+                        if current_unread > initial_unread:  # New mail detected
                             break
-                        except:
-                            # Mail Refresh
-                            page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
-                            continue
-                    
-                    # Check first 5 unread email rows
+
+                        # Refresh inbox and wait
+                        page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
+                        page.wait_for_timeout(2000)
+                    else:
+                        raise TimeoutError("No new unread Alibaba Cloud email appeared in time.")
+
+                    # Check first 5 unread emails
                     for i in range(5):
                         try:
                             row = page.locator("tr.zE").nth(i)
                             content = row.inner_text(timeout=3000)
 
-                            if ("Alibaba Cloud" in content and 
-                                "Security Verification Code" in content and 
-                                "This email is sent by Alibaba Cloud" in content):
+                            if "Alibaba Cloud" in content and "Security Verification Code" in content:
                                 row.click()
                                 break
-                        except Exception as e:
-                            continue  # Skip if row not available or timeout
+                        except:
+                            continue
 
                 except TimeoutError:
                     print("No unread Alibaba Cloud email appeared in time.")
-
+                
                 # wait for ""1.  This code is required to complete your account verification or secure login process.""
                 page.locator("//p[contains(text(),'1.  This code is required to complete your account')]").wait_for(timeout=0)
 
@@ -864,8 +849,6 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "验证安全邮箱" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "OK!")
 
                 # Click "x mark"
                 page2.locator('//i[@class="next-icon next-icon-close next-xs"]').click()
@@ -877,20 +860,18 @@ class Aliyun(Automation, JavaScript_Style):
                 page2.wait_for_timeout(500) 
 
                 # Click "提交验证码"
+                __class__.red_Check(page2.locator("//button[@type='submit']"), "Click '提交验证码'")
                 page2.locator('//button[@type="submit"]').click()
-                __class__.green_Check(page2.locator("//button[@type='submit']"), "提交验证码")
 
                 # Wait for "正常" appear
                 __class__.red_Check(page2.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//span[contains(text(),'正常')]"), "OK!")
 
                 # Mouse Click
                 pyautogui.click(x=1100, y=287)
                 
                 # Extract Credit
+                __class__.red_Check(page2.locator("//div[@class='ng-binding']"), "Extract Credit '费用'")
                 credit = page2.locator(f"//div[@class='ng-binding']").text_content()
-                __class__.green_Check(page2.locator("//div[@class='ng-binding']"), "Extract Credit!")
 
                 # Replace
                 credit = credit.replace(' USD', '')
@@ -904,16 +885,12 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "RAM 用户" to be appear
                 __class__.red_Check(page2.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait 'RAM 用户'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "OK!")
 
                 # delay 0.3second
                 page2.wait_for_timeout(300)
 
                 # hover to menu
                 __class__.red_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
                 page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # if hover menu doesnt appear, rehover again
@@ -922,8 +899,6 @@ class Aliyun(Automation, JavaScript_Style):
                         # Wait for "安全管控" to be appear
                         expect(page2.locator("//span[contains(text(),'安全管控')]")).to_be_visible(timeout = 1000) 
                         __class__.red_Check(page2.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
-                        page2.wait_for_timeout(300)
-                        __class__.green_Check(page2.locator("//span[contains(text(),'安全管控')]"), "OK!")
                         break
                     except:
                         # Mouse Click
@@ -940,10 +915,7 @@ class Aliyun(Automation, JavaScript_Style):
                 ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
 
                 # Click "退出登录" Logout
-                __class__.red_Check(page2.locator("//a[contains(text(),'退出登录')]"), "Wait '退出登录'")
-                page.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//a[contains(text(),'退出登录')]"), "OK!")
-                # 登出
+                __class__.red_Check(page2.locator("//a[contains(text(),'退出登录')]"), "Click '退出登录'")
                 page2.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
                 # delay 0.5second
@@ -958,10 +930,14 @@ class Aliyun(Automation, JavaScript_Style):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-            # Create Browser Tabs
-            page = context.pages[0] if context.pages else context.new_page()
-            page2 = context.new_page()
+            # Close all existing tabs (to avoid Gmail or wrong pages)
+            for pg in context.pages:
+                pg.close()
 
+            # Create two new tabs
+            page = context.new_page()
+            page2 = context.new_page()
+            
             # First Tab Navigate to Gmail
             page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
             # Second Tab Navigate to Aliyun Ram
@@ -973,12 +949,11 @@ class Aliyun(Automation, JavaScript_Style):
             # Refresh page
             page2.reload()
 
-           # For loop
+            # For loop
             for ven_id in watermelon_aliyun_INT_RAM_ID:
                 
                 # wait for "RAM 用户登录" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
-                __class__.green_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "OK!")
         
                 # Wait for lastpass vault button image to appear
                 image_vault_0 = None
@@ -1005,37 +980,28 @@ class Aliyun(Automation, JavaScript_Style):
                 page2.wait_for_timeout(500)
 
                 # Click "下一步" 
-                __class__.red_Check(page2.locator("//button[@type='button']"), "Wait '下一步'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//button[@type='button']"), "OK! Click 下一步")
+                __class__.red_Check(page2.locator("//button[@type='button']"), "Click '下一步'")
                 page2.locator('//button[@type="button"]').click()
-                
+
                 # Wait for "*用户密码" appear
                 __class__.red_Check(page2.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//label[contains(text(),'用户密码')]"), "OK!")
 
                 # delay 0.3second
                 page2.wait_for_timeout(300)
 
-                # Click “登入”
-                __class__.red_Check(page2.locator("//button[@type='submit']"), "Wait '*用户密码'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//button[@type='submit']"), "OK!")
-                page2.locator('//button[@type="submit"]').click()
+                # Click “登录”
+                while True:
+                    if page2.locator("//h3[contains(text(),'验证安全邮箱')]").is_visible():
+                        break
+
+                    __class__.red_Check(page2.locator("//button[@type='submit']"), "Click '登录'")
+                    page2.locator('//button[@type="submit"]').click()
+
+                    # delay 3seconds
+                    page2.wait_for_timeout(3000)
                 
-                # delay 0.3second
-                page2.wait_for_timeout(300)
-
-                # Wait for "验证安全邮箱" appear
-                __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "OK!")
-
                 # Click "获取验证码" 
-                __class__.red_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "Wait '验证安全邮箱'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "OK!")
+                __class__.red_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "Click '验证安全邮箱'")
                 page2.locator('//span[contains(text(),"获取验证码")]').click()
 
                 # Switch to Gmail
@@ -1043,29 +1009,33 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # 等待gmail alibaba验证码 跳出
                 try:
-                    while True:
-                        try:
-                            # Wait until at least one unread email is visible
-                            page.wait_for_selector("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code'):has-text('- This email is sent by Alibaba Cloud and is automatically generated. Please do not reply directly. ')", timeout=5000)
+                    # Get initial count of unread Alibaba verification emails
+                    initial_unread = page.locator("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code')").count()
+
+                    # Loop until new unread mail arrives (max 1 minute)
+                    for attempt in range(12):
+                        current_unread = page.locator("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code')").count()
+
+                        if current_unread > initial_unread:  # New mail detected
                             break
-                        except:
-                            # Mail Refresh
-                            page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
-                            continue
-                    
-                    # Check first 5 unread email rows
+
+                        # Refresh inbox and wait
+                        page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
+                        page.wait_for_timeout(2000)
+                    else:
+                        raise TimeoutError("No new unread Alibaba Cloud email appeared in time.")
+
+                    # Check first 5 unread emails
                     for i in range(5):
                         try:
                             row = page.locator("tr.zE").nth(i)
                             content = row.inner_text(timeout=3000)
 
-                            if ("Alibaba Cloud" in content and 
-                                "Security Verification Code" in content and 
-                                "This email is sent by Alibaba Cloud" in content):
+                            if "Alibaba Cloud" in content and "Security Verification Code" in content:
                                 row.click()
                                 break
-                        except Exception as e:
-                            continue  # Skip if row not available or timeout
+                        except:
+                            continue
 
                 except TimeoutError:
                     print("No unread Alibaba Cloud email appeared in time.")
@@ -1096,8 +1066,6 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "验证安全邮箱" to be appear
                 __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait ‘验证安全邮箱'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "OK!")
 
                 # Click "x mark"
                 page2.locator('//i[@class="next-icon next-icon-close next-xs"]').click()
@@ -1113,22 +1081,17 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "本月消费概览" appear
                 __class__.red_Check(page2.locator("//span[contains(text(),'本月消费概览')]"), "Wait ‘本月消费概览'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//span[contains(text(),'本月消费概览')]"), "OK!")
 
                 # Mouse Click
                 pyautogui.click(x=1100, y=287)
 
                 # Wait for "VISA" to be appear
-                __class__.red_Check(page2.locator("//span[@class='payment-cardrand-visa']"), "Wait ‘VISA LOGO'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//span[@class='payment-cardrand-visa']"), "OK!")
+                __class__.red_Check(page2.locator("//span[@class='payment-cardrand-visa']"), "Wait ‘VISA Logo Appear'")
 
                 # Check if overdue payment
                 try:
                     overdue = page2.locator("//p[@ng-repeat='item in vm.topTipsArr']").wait_for(timeout=2000)
                     __class__.red_Check(page2.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
-                    __class__.green_Check(page2.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
                     print(f"{ven_id}= ", overdue)   
                 except:
                     pass
@@ -1138,15 +1101,12 @@ class Aliyun(Automation, JavaScript_Style):
                 
                 # Wait for "RAM 用户" to be appear
                 __class__.red_Check(page2.locator("//div[@class='sc-taltu8-3 CB-cquEbr']"), "Wait 'RAM 用户'")
-                page2.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//div[@class='sc-taltu8-3 CB-cquEbr']"), "OK!")
 
                 # delay 0.3second
                 page2.wait_for_timeout(300)
 
                 # hover to menu
                 __class__.red_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                __class__.green_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
                 page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # if hover menu doesnt appear, rehover again
@@ -1170,22 +1130,19 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Wait for "安全管控" to be appear
                 __class__.red_Check(page2.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
-                page.wait_for_timeout(300)
-                __class__.green_Check(page2.locator("//span[contains(text(),'安全管控')]"), "OK!")
 
                 # delay 0.5second
                 page2.wait_for_timeout(500)
 
                 # Click "退出登录" Logout
-                __class__.red_Check(page2.locator("//a[contains(text(),'退出登录')]"), "Wait '退出登录'")
-                __class__.green_Check(page2.locator("//a[contains(text(),'退出登录')]"), "退出登录")
+                __class__.red_Check(page2.locator("//a[contains(text(),'退出登录')]"), "Click '退出登录'")
                 page2.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
                 # delay 0.5second
                 page2.wait_for_timeout(500)
 
 # Tencent Automation
-class Tencent(Automation):
+class Tencent(Automation, JavaScript_Style):
 
     # 腾讯云【中国站】
     @classmethod
@@ -1202,8 +1159,12 @@ class Tencent(Automation):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-            # Open a new browser page
-            page = context.pages[0] 
+            # Close all existing tabs (to avoid Gmail or wrong pages)
+            for pg in context.pages:
+                pg.close()
+
+            # Create a new browser tab
+            page = context.new_page()
             page.goto("https://cloud.tencent.com/login?s_url=https://console.cloud.tencent.com/expense/overview", wait_until="domcontentloaded")
 
             # if is "子用户登录" then click "切换登录方式", else skip
@@ -1215,10 +1176,10 @@ class Tencent(Automation):
                 pass
   
             # wait for "邮箱登录" to be appear
-            page.locator("//div[contains(text(),'邮箱登录')]").wait_for(timeout=0) 
-
+            __class__.red_Check(page.locator("//div[contains(text(),'邮箱登录')]"), "Wait '邮箱登录'")
+            
             # Click "邮箱登录" to Login
-            page.locator("//div[contains(text(),'邮箱登录')]").click()
+            page.locator("//div[@class='accsys-tp-tabs__item-label'][contains(text(),'邮箱登录')]").click()
 
             # click lastpass extension       
             pyautogui.click(x=1416, y=63)
@@ -1319,13 +1280,29 @@ class Tencent(Automation):
             page.wait_for_timeout(500)
 
             # hover to menu
-            pyautogui.moveTo(1502, 105)
-
-            # wait for "安全设置" to be appear
-            page.locator("//span[contains(text(),'安全设置')]").wait_for(state="visible", timeout=0)
+            page.hover("div.sdk-nav-v2-nav-user-info-account")
 
             # delay 0.5second
             page.wait_for_timeout(500)
+
+            page.wait_for_selector("//span[contains(text(),'安全设置')]", timeout=1000)
+
+            # if hover menu doesnt appear, rehover again
+            while True:
+                try:
+                    # Wait for "安全设置" to be appear
+                    __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
+                    __class__.green_Check(page.locator("//span[contains(text(),'安全设置')]"), "OK!")
+                    break
+                except:
+                    # Mouse Click
+                    pyautogui.click(x=1267, y=217)
+                    # delay 0.3second
+                    page.wait_for_timeout(300)
+                    # hover to menu
+                    page.hover("div.sdk-nav-v2-nav-user-info-account")
+                    # delay 1second
+                    page.wait_for_timeout(500)
 
             # Screenshot
             ImageGrab.grab().save('./晚班水位/ven182.png')
@@ -1440,6 +1417,9 @@ class Tencent(Automation):
             
             # MongoDB ID
             m_id = 0
+
+            # Launch MongoDB Atlas
+            collection = __class__.mongodb_atlas()
 
             # Wait for Chrome CDP to be ready
             cls.wait_for_cdp_ready()
@@ -2685,36 +2665,36 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-Aliyun.aliyun_CN()
+# Aliyun.aliyun_CN()
 # Aliyun.aliyun_INT()
 # Aliyun.watermelon_aliyun_INT()
 # Aliyun.aliyun_INT_RAM()
-# Aliyun.watermelon_aliyun_INT_RAM()
+Aliyun.watermelon_aliyun_INT_RAM()
 
-# Tencent
-# Tencent.tencent_CN()
-# Tencent.tencent_CN_SUB()
-# Tencent.tencent_INT()
-# Tencent.tencent_INT_CAM()
-# Tencent.tencent_ven295()
+# # Tencent
+Tencent.tencent_CN()
+Tencent.tencent_CN_SUB()
+Tencent.tencent_INT()
+Tencent.tencent_INT_CAM()
+Tencent.tencent_ven295()
 
 # Huawei
-# Huawei.huawei_OPSADMIN()
-# Huawei.huawei()
+Huawei.huawei_OPSADMIN()
+Huawei.huawei()
 
 # Ucloud
-# Ucloud.ucloud()
+Ucloud.ucloud()
 
 # Other
-# Other_Cloud.gname()
-# Other_Cloud.s211()
-# Other_Cloud.byteplus()
-# Other_Cloud.sms_man()
+Other_Cloud.gname()
+Other_Cloud.s211()
+Other_Cloud.byteplus()
+Other_Cloud.sms_man()
 
 # Zentao & Noctool
-# Zentao_Noctool.zentaowater()
-# Zentao_Noctool.noctoolwater()
-# Zentao_Noctool.low_water()
+Zentao_Noctool.zentaowater()
+Zentao_Noctool.noctoolwater()
+Zentao_Noctool.low_water()
 
 # Timer, End Time
 end = time.perf_counter()
