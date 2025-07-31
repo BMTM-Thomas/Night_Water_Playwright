@@ -229,19 +229,44 @@ class Automation:
 # Aliyun Automation
 class Aliyun(Automation, JavaScript_Style):
 
-    # Drag n Drop Random Number
-    @classmethod
-    def drag_random(cls, x, y):
-        random_x = random.randint(*x)
-        random_y = random.randint(*y)
-        pyautogui.moveTo(random_x, random_y, duration=0.14)
-        return random_x, random_y
-    @classmethod
-    def drop_random(cls, x, y):
-        random_x = random.randint(*x)
-        random_y = random.randint(*y)
-        pyautogui.dragTo(random_x, random_y, button='left', duration=0.12)
-        return random_x, random_y
+    # Peform Drag and Drop
+    @staticmethod
+    def human_drag_slider(page):
+        # --- Step 1: Try to find iframe ---
+        iframe_locator = "iframe#alibaba-login-box"
+        if page.locator(iframe_locator).count() > 0:
+            # Slider inside iframe
+            root = page.frame_locator(iframe_locator)
+            # Check for nested iframe
+            if root.locator("iframe#baxia-dialog-content").count() > 0:
+                root = root.frame_locator("iframe#baxia-dialog-content")
+        else:
+            # No iframe
+            root = page
+
+        # --- Step 2: Locate slider handle ---
+        slider = root.locator("#nc_1_n1z")
+        slider.wait_for(state="visible")
+
+        # --- Step 3: Get bounding box and track width ---
+        box = slider.bounding_box()
+        start_x = box["x"] + box["width"] / 2
+        start_y = box["y"] + box["height"] / 2
+
+        # --- Step 4: Perform human-like drag ---
+        distance =  260
+        page.mouse.move(start_x, start_y)
+        page.mouse.down()
+
+        steps = 25
+        for i in range(steps):
+            t = (i + 1) / steps
+            x = start_x + distance * t + random.uniform(-2, 2)
+            y = start_y + random.uniform(-1, 1)
+            page.mouse.move(x, y, steps=1)
+            time.sleep(random.uniform(0.01, 0.02))
+
+        page.mouse.up()
 
     # Aliyun 中国站
     @classmethod
@@ -282,7 +307,7 @@ class Aliyun(Automation, JavaScript_Style):
                 pass
  
             for ven_id in aliyun_CN_ID:
-                
+            
                 ## Get iframe
                 iframe = page.frame_locator("//div[@id='alibaba-login-iframe']//iframe[@id='alibaba-login-box']")
 
@@ -396,181 +421,170 @@ class Aliyun(Automation, JavaScript_Style):
     # Aliyun 国际站
     @classmethod
     def aliyun_INT(cls):
-        with sync_playwright() as p: 
-            
-            # MongoDB ID
-            m_id = 0
-
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
-
-            # Connect to running Chrome
-            browser = p.chromium.connect_over_cdp("http://localhost:9222")
-            context = browser.contexts[0] if browser.contexts else browser.new_context()
-
-            # Open a new browser page
-            page = context.pages[0] if context.pages else context.new_page()
-            page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview", wait_until="domcontentloaded")
-            
-            # if is "RAM 用户登录" then click "主账号登录", else skip
-            try:
-                if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
-                    __class__.red_Check(page.locator(":has-text('RAM 用户登录')"), "Wait 'RAM 用户登录'")
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # Click "主账号登录"
-                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
-                    page.locator("//span[contains(text(),'主账号登录')]").click()
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # page go to a link
-                    page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
-            except:
-                pass
-
-            for ven_id in aliyun_INT_ID:
-                ## Get iframe
-                iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
-
-                # Wait for "简体中文" to be appear
-                __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
-
-                ## Wait for "登录" to be appear
-                __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '登录'")
+        try:
+            with sync_playwright() as p: 
                 
-                # click lastpass extension       
-                pyautogui.click(x=1416, y=62)
+                # MongoDB ID
+                m_id = 0
 
-                # Wait for lastpass vault button image to appear
-                image_vault = None
-                while image_vault is None:
-                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
-  
-                # lastpass search ven and click 
-                # delay 0.5second
-                page.wait_for_timeout(500)
-                pyautogui.write(ven_id)
-                # delay 0.5second
-                page.wait_for_timeout(500)
-                # Mouse Click
-                pyautogui.click(x=1260, y=170)
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # Launch MongoDB Atlas
+                collection = __class__.mongodb_atlas()
 
-                ## Click "登录" to Login
-                __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
-                iframe.locator('#fm-login-submit').click()
- 
-                # delay 3seconds
-                page.wait_for_timeout(3000)
+                # Connect to running Chrome
+                browser = p.chromium.connect_over_cdp("http://localhost:9222")
+                context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-                # If Drag and Drop Appear
-                while True:
-                    #  if image found do something, else will error and stop
-                    if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-    
-                        # Step 1 & 2 : Switch to outer then inner iframe
-                        iframe2 = page.frame_locator("iframe#alibaba-login-box").frame_locator("iframe#baxia-dialog-content")
-
-                        # Step 3: Locate the slider inside inner iframe
-                        slider = iframe2.locator("#nc_1_n1z")  # 滑块按钮
-
-                        # Step 4: Get bounding box (for exact coordinates)
-                        box = slider.bounding_box()
-
-                        start_x = box["x"] + box["width"] / 2
-                        start_y = box["y"] + box["height"] / 2
-
-                        # Step 5: Drag with random human-like movement
-                        distance = 260  # 调整为实际滑块长度
-                        page.mouse.move(start_x, start_y)
-                        page.mouse.down()
-
-                        steps = 20
-                        for i in range(steps):
-                            x = start_x + (distance / steps) * (i + 1) + random.uniform(-2, 2)
-                            y = start_y + random.uniform(-1, 1)
-                            page.mouse.move(x, y, steps=1)
-                            time.sleep(random.uniform(0.01, 0.03))
-
-                        page.mouse.up()
-
-                        # delay 3seconds
-                        page.wait_for_timeout(3000)
-    
-                        # if '登录阿里云账号' is there, means drag and drop failed
-                        try:
-                            if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
-                                # Mouse Click
-                                pyautogui.click(x=1114, y=510)
-                                # delay 1second
-                                page.wait_for_timeout(1000)
-                        except:
-                            pass
-                    else:
-                        break
-                  
-                ## Click "登录" to Login
+                # Open a new browser page
+                page = context.pages[0] if context.pages else context.new_page()
+                page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview", wait_until="domcontentloaded")
+                
+                # if is "RAM 用户登录" then click "主账号登录", else skip
                 try:
-                    iframe.locator('#fm-login-submit').click(timeout=500)
-                except:
-                    pass 
-
-                # Wait "正常" to be appear
-                __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
-                
-                # Extract Credit
-                __class__.red_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit ‘费用’")
-                credit = page.locator("//div[@class='ng-binding']").text_content()
- 
-                # Replace
-                credit = credit.replace(' USD', '')
-
-                # MongoDB Update Data
-                mangos_id = {'_id': ObjectId(aliyun_INT_MONGODB[m_id])}
-                collection.update_one(mangos_id, {"$set": {"Credit": credit}})
-                print(f"{ven_id}= {credit}")
-                # mongdb+id +1
-                m_id += 1
-                
-                # Wait for "主账号" to be appear
-                page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
-                __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                
-                # delay 0.3second
-                page.wait_for_timeout(300)
-
-                # hover to menu
-                __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
-
-                # if hover menu doesnt appear, rehover again
-                while True:
-                    try:
-                        # Wait for "安全设置" to be appear
-                        expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
-                        __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
-                        break
-                    except:
-                        # Mouse Click
-                        pyautogui.click(x=1267, y=217)
+                    if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
+                        __class__.red_Check(page.locator(":has-text('RAM 用户登录')"), "Wait 'RAM 用户登录'")
                         # delay 0.5second
                         page.wait_for_timeout(500)
-                        # hover to menu
-                        page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+                        # Click "主账号登录"
+                        __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
+                        page.locator("//span[contains(text(),'主账号登录')]").click()
+                        # delay 0.5second
+                        page.wait_for_timeout(500)
+                        # page go to a link
+                        page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
+                except:
+                    pass
 
-                # delay 0.3second
-                page.wait_for_timeout(300)
+                for ven_id in aliyun_INT_ID:
+                    ## Get iframe
+                    iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
 
-                # Screenshot
-                ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
+                    # Wait for "简体中文" to be appear
+                    __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
 
-                # Click "退出登录" Logout
-                __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                page.locator("//a[contains(text(),'退出登录')]").click(force=True)
-                
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                    ## Wait for "登录" to be appear
+                    __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '登录'")
+                    
+                    # click lastpass extension       
+                    pyautogui.click(x=1416, y=62)
+
+                    # Wait for lastpass vault button image to appear
+                    image_vault = None
+                    while image_vault is None:
+                        image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
+    
+                    # lastpass search ven and click 
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+                    pyautogui.write(ven_id)
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+                    # Mouse Click
+                    pyautogui.click(x=1260, y=170)
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+
+                    ## Click "登录" to Login
+                    __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
+                    iframe.locator('#fm-login-submit').click()
+
+                    # delay 3seconds
+                    page.wait_for_timeout(3000)
+
+                    # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
+                    while True:
+                        try: 
+                            expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=1000)
+                            cls.human_drag_slider(page)
+                        except:
+                            break
+    
+                    # Drag and Drop Appear (Login appear)
+                    while True:
+                        #  if image found do something, else will error and stop
+                        if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
+        
+                            cls.human_drag_slider(page)  
+
+                            # delay 3seconds
+                            page.wait_for_timeout(3000)
+        
+                            # if '登录阿里云账号' is there, means drag and drop failed
+                            try:
+                                if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
+                                    # Mouse Click
+                                    pyautogui.click(x=1114, y=510)
+                                    # delay 1second
+                                    page.wait_for_timeout(1000)
+                            except:
+                                pass
+                        else:
+                            break
+                    
+                    ## Click "登录" to Login
+                    try:
+                        iframe.locator('#fm-login-submit').click(timeout=500)
+                    except:
+                        pass 
+
+                    # Wait "正常" to be appear
+                    __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
+                    
+                    # Extract Credit
+                    __class__.red_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit ‘费用’")
+                    credit = page.locator("//div[@class='ng-binding']").text_content()
+    
+                    # Replace
+                    credit = credit.replace(' USD', '')
+
+                    # MongoDB Update Data
+                    mangos_id = {'_id': ObjectId(aliyun_INT_MONGODB[m_id])}
+                    collection.update_one(mangos_id, {"$set": {"Credit": credit}})
+                    print(f"{ven_id}= {credit}")
+                    # mongdb+id +1
+                    m_id += 1
+                    
+                    # Wait for "主账号" to be appear
+                    page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
+                    __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
+                    
+                    # delay 0.3second
+                    page.wait_for_timeout(300)
+
+                    # hover to menu
+                    __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
+                    page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+
+                    # if hover menu doesnt appear, rehover again
+                    while True:
+                        try:
+                            # Wait for "安全设置" to be appear
+                            expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
+                            __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
+                            break
+                        except:
+                            # Mouse Click
+                            pyautogui.click(x=1267, y=217)
+                            # delay 0.5second
+                            page.wait_for_timeout(500)
+                            # hover to menu
+                            page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+
+                    # delay 0.3second
+                    page.wait_for_timeout(300)
+
+                    # Screenshot
+                    ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
+
+                    # Click "退出登录" Logout
+                    __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
+                    page.locator("//a[contains(text(),'退出登录')]").click(force=True)
+                    
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            time.sleep(11111)
 
     # Watermelon Aliyun 国际站
     @classmethod
@@ -637,12 +651,9 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                 iframe.locator('#fm-login-submit').click()
 
-                # Simulate Human move mouse, to prevent bot detect
-                cls.drag_random((267, 471), (112, 625))
-                
                 # delay 3seconds
                 page.wait_for_timeout(3000)
-                
+
                 # If Drag and Drop Appear
                 while True:
                     #  if image found do something, else will error and stop
@@ -743,7 +754,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 3seconds
                 page.wait_for_timeout(3000)
 
-    # Aliyun 国际版【RAM】    # page = gmail, page2 = alibaba
+    # Aliyun 国际版【RAM】    
     @classmethod
     def aliyun_INT_RAM(cls):
         with sync_playwright() as p: 
@@ -983,7 +994,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 0.5second
                 page2.wait_for_timeout(500)
 
-    # Watermelon Aliyun 国际站【RAM】    # page = gmail, page2 = alibaba
+    # Watermelon Aliyun 国际站【RAM】    
     @classmethod
     def watermelon_aliyun_INT_RAM(cls):
         with sync_playwright() as p: 
@@ -1622,7 +1633,13 @@ class Tencent(Automation, JavaScript_Style):
 
                 # delay 1second
                 page.wait_for_timeout(1000)
-            
+
+                # page reload
+                page.reload()
+
+                # delay 1second
+                page.wait_for_timeout(1000)
+
     # 腾讯云【国际站】CAM用户登录
     @classmethod
     def tencent_INT_CAM(cls):
@@ -1879,7 +1896,7 @@ class Huawei(Automation):
             for ven_id in huawei_OPSADMIN_ID:
 
                 # Huawei OPSADMIN Login
-                page.goto(Huawei_Webpage[m_id], timeout=15000, wait_until="domcontentloaded")
+                page.goto(Huawei_Webpage[m_id], wait_until="domcontentloaded")
 
                 # wait for "IAM用户登录" to be appear
                 page.locator("//span[@class='loginTypeNoSelected ng-binding']").wait_for(timeout=0) 
@@ -2447,8 +2464,8 @@ class Other_Cloud(Automation):
             # Screenshot
             ImageGrab.grab().save('./晚班水位/ven326.png')
             
-            # delay 0.5second
-            page.wait_for_timeout(500)
+            # delay 1second
+            page.wait_for_timeout(1000)
 
     # 7211.com
     @classmethod
@@ -2596,7 +2613,7 @@ class Other_Cloud(Automation):
                 page.wait_for_timeout(500)
 
                 # Extract Credit
-                credit = page.locator("//div[5]//div[1]//p[2]").text_content()
+                credit = page.locator("//*[@id='root']/div/div[2]/div/div/div[2]/div/div[1]/div[4]/div/p[2]/span[1]").text_content()
 
                 # Re
                 credit = re.sub(r'[^\d.]', '', credit)
@@ -2620,14 +2637,11 @@ class Other_Cloud(Automation):
                 # wait for "费用中心" to be appear
                 page.locator("//a[@class='index-module__item--13iOw']//div[contains(text(),'费用中心')]").wait_for(timeout=0)
 
-                # delay 0.5second
-                page.wait_for_timeout(500)
-
                 # Click "退出“ logout 
                 page.locator("//button[@class='bp-nav-btn bp-nav-btn-secondary bp-nav-btn-size-default bp-nav-btn-shape-square index-module__btn--3XoR5']").click()
 
-                # delay 5second
-                page.wait_for_timeout(5000)
+                # delay 2seconds
+                page.wait_for_timeout(2000)
 
 # Zentaowater & Noctoolwater Automation
 class Zentao_Noctool(Automation):
@@ -2772,7 +2786,7 @@ class Zentao_Noctool(Automation):
     @classmethod
     def noctoolwater(cls):
         with sync_playwright() as p:  
-                    
+        
             # Launch MongoDB Atlas
             collection = __class__.mongodb_atlas()
 
@@ -2790,43 +2804,47 @@ class Zentao_Noctool(Automation):
             # delay 0.5second
             page.wait_for_timeout(500)
 
-            for cloud_db, cloud_id in zip(all_Cloud_MONGODB, all_Cloud_ID): 
-                for mongodb_id, ven_id, links in zip(cloud_db, cloud_id, n_webpage):
+            # Flatten the nested tuples
+            mongodb_id = sum(all_Cloud_MONGODB, ())
+            ven_id = sum(all_Cloud_ID, ())
 
-                    # Go to the webpage
-                    page.goto(links, wait_until="domcontentloaded")
+            for mongodb_id, ven_id, links in zip(mongodb_id, ven_id, n_webpage):
 
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
+                # Go to the webpage
+                page.goto(links, wait_until="domcontentloaded")
 
-                    # Wait for "記錄量趨勢圖" to be appear
-                    page.locator("//h5[contains(text(),'記錄量趨勢圖')]").wait_for(timeout=0) 
-                    
-                    # Mouse Click
-                    pyautogui.click(x=961, y=414)
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
+                # Wait for "記錄量趨勢圖" to be appear
+                page.locator("//h5[contains(text(),'記錄量趨勢圖')]").wait_for(timeout=0) 
+                
+                # Mouse Click
+                pyautogui.click(x=961, y=414)
 
-                    # Mouse scroll down
-                    pyautogui.scroll(-100)
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
-                    # Previous Credit / Data
-                    pre_credit = page.locator("//tbody/tr[1]/td[2]").text_content()
+                # Mouse scroll down
+                pyautogui.scroll(-100)
 
-                    # Search mongodb database object ID
-                    mangodb_id = {'_id': ObjectId(mongodb_id)}
-                    documents = collection.find_one(mangodb_id)
-                    credit_value = documents.get('Credit', 'N/A') 
+                # Previous Credit / Data
+                pre_credit = page.locator("//tbody/tr[1]/td[2]").text_content()
 
-                    # Fill credit
-                    page.fill('//input[@id="id_stocks"]', credit_value)
-                    # page.keyboard.press("Enter")  
+                # Search mongodb database object ID
+                search_mongodb_id = {'_id': ObjectId(mongodb_id)}
+                documents = collection.find_one(search_mongodb_id)
+                credit_value = documents.get('Credit', 'N/A') 
 
-                    print(f"{ven_id}= Previous: {pre_credit}, Actual: {credit_value} \n") 
+                # Fill credit
+                page.fill('//input[@id="id_stocks"]', credit_value)
+                # page.keyboard.press("Enter")  
 
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
+                # Yesterday record vs Today Record
+                print(f"{ven_id}= Previous: {pre_credit}, Actual: {credit_value} \n") 
+
+                # delay 0.5second
+                page.wait_for_timeout(500)
 
     # 检查 【安全水位】
     def low_water ():
@@ -2849,7 +2867,7 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-# Aliyun.aliyun_CN()
+Aliyun.aliyun_CN()
 Aliyun.aliyun_INT()
 Aliyun.watermelon_aliyun_INT()
 Aliyun.aliyun_INT_RAM()
