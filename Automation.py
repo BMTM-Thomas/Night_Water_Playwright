@@ -2841,7 +2841,7 @@ class Zentao_Noctool(Automation):
                 # page.keyboard.press("Enter")  
 
                 # Yesterday record vs Today Record
-                print(f"{ven_id}= Previous: {pre_credit}, Actual: {credit_value} \n") 
+                print(f"{ven_id}= Yesterday_Record: {pre_credit}, Today_Record: {credit_value} \n") 
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
