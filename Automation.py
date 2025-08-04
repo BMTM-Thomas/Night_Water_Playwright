@@ -9,19 +9,20 @@ import requests
 import pyautogui
 import pyperclip
 import subprocess
+from PIL import ImageGrab
 from List_Zentao import *
 from openai import OpenAI
 from bson import ObjectId 
 from List_Noctool import *
-from datetime import timedelta
+from datetime import datetime
 from dotenv import load_dotenv
+from datetime import timedelta
 from pymongo import MongoClient
-from PIL import ImageGrab
 from bson.objectid import ObjectId  
 from List_Aliyun_DDCaptcha import *   
 from AppKit import NSPasteboard, NSPasteboardTypePNG
 from playwright.sync_api import sync_playwright, expect
-from datetime import datetime
+
 
 # OpenAI API
 class MyChatGPT:
@@ -1926,31 +1927,17 @@ class Huawei(Automation):
                 # Click "登录" to Login
                 page.locator("//span[@id='btn_submit']").click()
 
-                # Check Verification Whether is Appear or not
-                if ven_id == "ven399":
-                    # ven399 MFA Verfication Appear
-                    # wait for 上次登录成功时间 appear
-                    expect(page.locator("//div[contains(text(),'上次登录成功时间')]")).to_be_visible(timeout= 0) # "登录验证"
+                try:
+                    # wait for "登录验证" to be appear
+                    expect(page.locator("//p[@class='ng-binding']")).to_have_text("登录验证", timeout=3000)
 
-                    # delay 1second
-                    page.wait_for_timeout(1000)
+                    # mark checkbox
+                    page.check("//input[@id='promptBindAndEnableCheckbox']")
 
-                    # Click "登录" to Login
-                    page.locator("//div[@id='submitBtn']").click()
-                else:
-                    # MFA Verification Appear, if appear do something... else skip...
-                    # if "登录验证" appear within a 3 seconds then continue.... else skip
-                    try:
-                        # wait for "登录验证" to be appear
-                        expect(page.locator("//p[@class='ng-binding']")).to_have_text("登录验证", timeout=3000)
-
-                        # mark checkbox
-                        page.check("//input[@id='promptBindAndEnableCheckbox']")
-
-                        # Button click 暂不绑定
-                        page.locator("xpath=//div[@id='promptBindAndEnableCancelBtn']").click(force=True)  
-                    except:
-                        pass
+                    # Button click 暂不绑定
+                    page.locator("xpath=//div[@id='promptBindAndEnableCancelBtn']").click(force=True)  
+                except:
+                    pass
 
                 # wait for "Intl-简体" to be appear
                 page.locator("//span[contains(text(),'Intl-简体')]").wait_for(timeout=0) 
@@ -2702,7 +2689,10 @@ class Zentao_Noctool(Automation):
             iframe.locator("//*[@id='dataform']/div[2]/div[1]/div/div[1]/div[1]").wait_for(timeout=0) 
 
             ## Wait for "备注" to be appear
-            iframe.locator("//div[contains(text(),'备注')]").wait_for(timeout=0) 
+            iframe.locator("//div[contains(text(),'备注')]").wait_for(timeout=0)
+
+            ## Click "不再提醒" 
+            page.locator("//a[contains(text(),'不再提醒')]").click()
             
             # delay 0.5second
             page.wait_for_timeout(500)
@@ -2775,7 +2765,6 @@ class Zentao_Noctool(Automation):
                     # delay 0.5 second
                     page.wait_for_timeout(500) 
 
-
             ## Click "保存" 
             iframe.locator("//button[@id='submit']").click()
 
@@ -2838,7 +2827,7 @@ class Zentao_Noctool(Automation):
 
                 # Fill credit
                 page.fill('//input[@id="id_stocks"]', credit_value)
-                # page.keyboard.press("Enter")  
+                page.keyboard.press("Enter")  
 
                 # Yesterday record vs Today Record
                 print(f"{ven_id}= Yesterday_Record: {pre_credit}, Today_Record: {credit_value} \n") 
@@ -2873,21 +2862,21 @@ Aliyun.watermelon_aliyun_INT()
 Aliyun.aliyun_INT_RAM()
 Aliyun.watermelon_aliyun_INT_RAM()
 
-# # Tencent
+# Tencent
 Tencent.tencent_CN()
 Tencent.tencent_CN_SUB()
 Tencent.tencent_INT()
 Tencent.tencent_INT_CAM()
 Tencent.tencent_ven295()
-
-# Huawei
+ 
+# # # Huawei
 Huawei.huawei_OPSADMIN()
 Huawei.huawei()
 
-# Ucloud
+# # Ucloud
 Ucloud.ucloud()
 
-# Other
+# # Other
 Other_Cloud.gname()
 Other_Cloud.s211()
 Other_Cloud.byteplus()
@@ -2896,7 +2885,6 @@ Other_Cloud.sms_man()
 # Zentao & Noctool
 Zentao_Noctool.zentaowater()
 Zentao_Noctool.noctoolwater()
-Zentao_Noctool.low_water()
 
 # Timer, End Time
 end = time.perf_counter()
