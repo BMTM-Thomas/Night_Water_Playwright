@@ -990,8 +990,8 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(page2.locator("//a[contains(text(),'退出登录')]"), "Click '退出登录'")
                 page2.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
-                # delay 0.5second
-                page2.wait_for_timeout(500)
+                # delay 3second
+                page2.wait_for_timeout(3000)
 
     # Watermelon Aliyun 国际站【RAM】    
     @classmethod
@@ -1020,6 +1020,9 @@ class Aliyun(Automation, JavaScript_Style):
 
             # Refresh page
             page2.reload()
+
+            # delay 1seconds
+            page2.wait_for_timeout(1000)
 
             # For loop
             for ven_id in watermelon_aliyun_INT_RAM_ID:
@@ -1593,23 +1596,25 @@ class Tencent(Automation, JavaScript_Style):
                 # Click "登录" to Login
                 page2.locator("//button[@type='submit']//span[contains(text(),'登录')]").click()
 
+                # delay 3seconds
+                page2.wait_for_timeout(3000)
+
                 # Verify if "登录验证" is present
                 while True:
-                    try:
+                    # if "请输入通过邮件发送的验证码" appear
+                    if page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").is_visible():
+                        print("pass")
+                        
                         # wait for "请输入通过邮件发送的验证码" to be appear
-                        expect(page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']")).to_be_visible(timeout=2000)
+                        page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").wait_for(timeout=0) 
 
-                        # delay 1second
+                        # Click "发送验证码", but sometime it auto click already                                 
+                        page2.locator("//a[contains(text(),'发送验证码')]").wait_for(timeout=10000)
                         page2.wait_for_timeout(1000)
+                        page2.locator("//a[contains(text(),'发送验证码')]").click()
 
-                        # Click "发送验证码", but sometime it auto click already                                                                                                                            
-                        if page2.locator("//a[contains(text(),'发送验证码')]").is_visible(timeout=2000):
-                            page2.locator("//a[contains(text(),'发送验证码')]").click()
-                        else:
-                            print("Element '发送验证码' not found.")
-
-                        # delay 3second
-                        page2.wait_for_timeout(3000)
+                        # delay 1.5second
+                        page2.wait_for_timeout(1500)
                         print("checking....")
 
                         # Check whether have 3 dots loading image appear
@@ -1623,8 +1628,6 @@ class Tencent(Automation, JavaScript_Style):
                         while True:
                             # set iframe
                             iframe = page2.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
-
-                            print("loop")
 
                             # Check whether Captcha is present
                             try:
@@ -1735,9 +1738,6 @@ class Tencent(Automation, JavaScript_Style):
                         # delay 1second
                         page2.wait_for_timeout(1000) 
 
-                        # Click first box to focus
-                        pyautogui.click(348,571)
-
                         # Copy Paste code
                         pyperclip.copy(v_code)
                         pyautogui.keyDown('command')
@@ -1745,20 +1745,22 @@ class Tencent(Automation, JavaScript_Style):
                         pyautogui.keyUp('command')
 
                         break
-
-                    except: 
+                    else:
                         if page2.locator("//h2[contains(text(),'账户信息')]").is_visible():
                             break 
-                        else:
+                        else: 
                             continue
+
 
                 # wait for "账户信息" to be appear
                 page2.locator("//h2[contains(text(),'账户信息')]").wait_for(timeout=0) 
                 # wait for "可用额度" to be appear
                 page2.locator("//h3[contains(text(),'可用额度')]").wait_for(timeout=0) 
+                # wait for "0 张 （7日内到期0张）" to be appear
+                page2.locator("(//div[@class='data-mod inline'])[2]").wait_for(state="visible", timeout=5000)
 
-                # delay 0.5second
-                page2.wait_for_timeout(500)
+                # delay 2.5second
+                page2.wait_for_timeout(2500)
 
                 # Extract Credit
                 credit = page2.locator(f"(//div[@class='data-value arrows'])[1]").text_content()
@@ -2850,12 +2852,12 @@ class Zentao_Noctool(Automation):
                     image_vault = pyautogui.locateOnScreen('./image/vault3.png', grayscale = True)
                 print("Lastpass Image Vault Loaded") 
 
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 1second
+                page.wait_for_timeout(1000)
                 # Mouse Click
                 pyautogui.click(1176,212)   
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 1second
+                page.wait_for_timeout(1000)
                 # Click "登入" 
                 page.locator("//button[@id='submit']").click()
                 # delay 0.5second
@@ -3049,7 +3051,7 @@ Automation.chrome_CDP()
 # Aliyun.aliyun_INT_RAM()
 # Aliyun.watermelon_aliyun_INT_RAM()
 
-# Tencent
+# # Tencent
 # Tencent.tencent_CN()
 # Tencent.tencent_CN_SUB()
 Tencent.tencent_INT()
@@ -3063,7 +3065,7 @@ Huawei.huawei()
 # Ucloud
 Ucloud.ucloud()
 
-# # Other
+# Other
 Other_Cloud.gname()
 Other_Cloud.s211()
 Other_Cloud.byteplus()
