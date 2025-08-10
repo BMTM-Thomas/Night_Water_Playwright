@@ -577,8 +577,8 @@ class Aliyun(Automation, JavaScript_Style):
                     __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
                     page.locator("//a[contains(text(),'退出登录')]").click(force=True)
                     
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
+                    # delay 3second
+                    page.wait_for_timeout(3000)
 
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -754,6 +754,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Refresh Page
                 page.reload()
+
+                # delay 3seconds
+                page.wait_for_timeout(3000)
 
     # Aliyun 国际版【RAM】    
     @classmethod
@@ -1403,8 +1406,8 @@ class Tencent(Automation, JavaScript_Style):
             # Click "logout" to Login
             page.locator("//button[contains(text(),'退出')]").click()
 
-            # delay 3second
-            page.wait_for_timeout(3000)
+            # delay 1.5second
+            page.wait_for_timeout(1500)
 
     # 腾讯云【中国站】 子用户登录
     @classmethod
@@ -1513,11 +1516,14 @@ class Tencent(Automation, JavaScript_Style):
             # Click "logout" to Login
             page.locator("//button[contains(text(),'退出')]").click()
 
-            # delay 2second
-            page.wait_for_timeout(2000)
+            # delay 3second
+            page.wait_for_timeout(3000)
 
             # Refresh page
             page.reload()
+
+            # delay 1.5second
+            page.wait_for_timeout(1500)
 
     # 腾讯云【国际站】
     @classmethod
@@ -1599,157 +1605,160 @@ class Tencent(Automation, JavaScript_Style):
                 # delay 3seconds
                 page2.wait_for_timeout(3000)
 
-                # Verify if "登录验证" is present
-                while True:
-                    # if "请输入通过邮件发送的验证码" appear
-                    if page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").is_visible():
-                        print("pass")
+                # # Verify if "登录验证" is present
+                # while True:
+                #     # if "请输入通过邮件发送的验证码" appear
+                #     if page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").is_visible():
+                #         print("pass")
                         
-                        # wait for "请输入通过邮件发送的验证码" to be appear
-                        page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").wait_for(timeout=0) 
+                #         # wait for "请输入通过邮件发送的验证码" to be appear
+                #         page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").wait_for(timeout=0) 
 
-                        # Click "发送验证码", but sometime it auto click already                                 
-                        page2.locator("//a[contains(text(),'发送验证码')]").wait_for(timeout=10000)
-                        page2.wait_for_timeout(1000)
-                        page2.locator("//a[contains(text(),'发送验证码')]").click()
+                #         # Click "发送验证码", but sometime it auto click already    
+                #         try:                             
+                #             page2.locator("//a[contains(text(),'发送验证码')]").wait_for(timeout=3000)
+                #             page2.wait_for_timeout(1000)
+                #             page2.locator("//a[contains(text(),'发送验证码')]").click()
+                #         except:
+                #             pass
 
-                        # delay 1.5second
-                        page2.wait_for_timeout(1500)
-                        print("checking....")
+                #         # delay 1.5second
+                #         page2.wait_for_timeout(1500)
+                #         print("checking....")
 
-                        # Check whether have 3 dots loading image appear
-                        if pyautogui.locateOnScreen("./image/tencent_3_dots.png", grayscale=True):
-                            page2.wait_for_timeout(6000)
-                            print("Vault image found.")
-                        else:
-                            pass
+                #         # Check whether have 3 dots loading image appear
+                #         if pyautogui.locateOnScreen("./image/tencent_3_dots.png", grayscale=True):
+                #             page2.wait_for_timeout(6000)
+                #             print("Vault image found.")
+                #         else:
+                #             pass
 
-                        # wait for CAPTCHA "image验证" to be appear
-                        while True:
-                            # set iframe
-                            iframe = page2.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
+                #         # wait for CAPTCHA "image验证" to be appear
+                #         while True:
+                #             # set iframe
+                #             iframe = page2.frame_locator("//iframe[@id='tcaptcha_iframe_dy']")
 
-                            # Check whether Captcha is present
-                            try:
-                                # Wait up to 3 second for element to appear
-                                iframe.locator("//span[@id='pHeaderTitle']").wait_for(timeout=3000)
-                                title = iframe.locator("//span[@id='pHeaderTitle']").text_content()
-                            except:
-                                title = None
+                #             # Check whether Captcha is present
+                #             try:
+                #                 # Wait up to 3 second for element to appear
+                #                 iframe.locator("//span[@id='pHeaderTitle']").wait_for(timeout=3000)
+                #                 title = iframe.locator("//span[@id='pHeaderTitle']").text_content()
+                #             except:
+                #                 title = None
 
-                            # if title contains "选择" or "图片", then it is a captcha challenge
-                            if title and "选择" in title and "图片" in title:
-                                print(f"🛑 Captcha challenge detected: {title}")
+                #             # if title contains "选择" or "图片", then it is a captcha challenge
+                #             if title and "选择" in title and "图片" in title:
+                #                 print(f"🛑 Captcha challenge detected: {title}")
 
-                                # Chatgpt solve captcha...
-                                page2.wait_for_timeout(2000)
-                                screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))
-                                screenshot.save('./晚班水位/ven182.png')
+                #                 # Chatgpt solve captcha...
+                #                 page2.wait_for_timeout(2000)
+                #                 screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))
+                #                 screenshot.save('./晚班水位/ven182.png')
 
-                                gpt_client = MyChatGPT()
-                                prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
-                                response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
-                                print("🧠 GPT Response:", response_text)
+                #                 gpt_client = MyChatGPT()
+                #                 prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
+                #                 response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
+                #                 print("🧠 GPT Response:", response_text)
 
-                                gpt_client.extract_positions_and_click(response_text)
-                                iframe.locator("//button[@id='verifyBtn']").click()
+                #                 gpt_client.extract_positions_and_click(response_text)
+                #                 iframe.locator("//button[@id='verifyBtn']").click()
 
-                                # Mouse mouse to prevent it block the screenshot, causing chatgpt unable to solve captcha
-                                pyautogui.click(x=395, y=309)
+                #                 # Mouse mouse to prevent it block the screenshot, causing chatgpt unable to solve captcha
+                #                 pyautogui.click(x=395, y=309)
 
-                                # delay 3 seconds
-                                page2.wait_for_timeout(3000)
+                #                 # delay 3 seconds
+                #                 page2.wait_for_timeout(3000)
 
-                                # Check again x times
-                                continue
-                            else:
-                                break
+                #                 # Check again x times
+                #                 continue
+                #             else:
+                #                 break
 
-                        # Switch to Gmail
-                        page.bring_to_front()  
+                #         # Switch to Gmail
+                #         page.bring_to_front()  
 
-                        # 等待gmail tencent验证码 跳出
-                        try:
-                            # Get initial count of unread Tencent verification emails
-                            initial_unread = page.locator("tr.zE:has-text('Tencent Cloud'):has-text('Verify Your Account')").count()
-                            # Loop until new unread mail arrives (max 2 minutes)
-                            for attempt in range(30):
-                                current_unread = page.locator("tr.zE:has-text('Tencent Cloud'):has-text('Verify Your Account')").count()
-                                if current_unread > initial_unread:  # New mail detected
-                                    break
+                #         # 等待gmail tencent验证码 跳出
+                #         try:
+                #             # Get initial count of unread Tencent verification emails
+                #             initial_unread = page.locator("tr.zE:has-text('Tencent Cloud'):has-text('Verify Your Account')").count()
+                #             # Loop until new unread mail arrives (max 2 minutes)
+                #             for attempt in range(30):
+                #                 current_unread = page.locator("tr.zE:has-text('Tencent Cloud'):has-text('Verify Your Account')").count()
+                #                 if current_unread > initial_unread:  # New mail detected
+                #                     break
 
-                                # Refresh inbox and wait
-                                page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
-                                page.wait_for_timeout(4000)
-                            else:
-                                raise TimeoutError("No new unread Tencent Cloud email appeared in time.")
+                #                 # Refresh inbox and wait
+                #                 page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
+                #                 page.wait_for_timeout(4000)
+                #             else:
+                #                 raise TimeoutError("No new unread Tencent Cloud email appeared in time.")
                             
                             
-                            # Check Tencent Security Verification Code email, if email is too old dont use, else use
-                            # Get current time 
-                            now = datetime.strptime(datetime.now().strftime("%H:%M"), "%H:%M")
-                            # Check first 5 unread emails
-                            for i in range(5):
-                                try:
-                                    row = page.locator("tr.zE").nth(i)
-                                    content = row.inner_text(timeout=3000)
+                #             # Check Tencent Security Verification Code email, if email is too old dont use, else use
+                #             # Get current time 
+                #             now = datetime.strptime(datetime.now().strftime("%H:%M"), "%H:%M")
+                #             # Check first 5 unread emails
+                #             for i in range(5):
+                #                 try:
+                #                     row = page.locator("tr.zE").nth(i)
+                #                     content = row.inner_text(timeout=3000)
 
-                                    # Parse email time (HH:MM format from Gmail)
-                                    email_time_text = row.locator("span.bq3").nth(0).inner_text(timeout=3000) # Extract Email Time
-                                    email_time = datetime.strptime(email_time_text, "%H:%M") # Convert to datetime object
+                #                     # Parse email time (HH:MM format from Gmail)
+                #                     email_time_text = row.locator("span.bq3").nth(0).inner_text(timeout=3000) # Extract Email Time
+                #                     email_time = datetime.strptime(email_time_text, "%H:%M") # Convert to datetime object
 
-                                    # Click only if email is within 1 minute
-                                    if now - email_time <= timedelta(minutes=1):
-                                        if "Tencent Cloud" in content and "Verify Your Account" in content:
-                                            row.click()
-                                            break
-                                    else:
-                                        print("Email too old, skip")
-                                except:
-                                    continue
-                        except TimeoutError:
-                            print("No unread Tencent Cloud email appeared in time.")
+                #                     # Click only if email is within 2 minute
+                #                     if now - email_time <= timedelta(minutes=2):
+                #                         if "Tencent Cloud" in content and "Verify Your Account" in content:
+                #                             row.click()
+                #                             break
+                #                     else:
+                #                         print("Email too old, skip")
+                #                 except:
+                #                     continue
+                #         except TimeoutError:
+                #             print("No unread Tencent Cloud email appeared in time.")
 
-                        # wait for Tencent "Your verification code is"
-                        locator = page.locator("span[style*='font-size:14px']")
-                        locator.wait_for(timeout=5000)
+                #         # wait for Tencent "Your verification code is"
+                #         locator = page.locator("span[style*='font-size:14px']")
+                #         locator.wait_for(timeout=5000)
 
-                        # Regex to remove the unnecessary text, and keep only verification code
-                        v_code = locator.text_content()
-                        v_code = re.search(r"\b\d{6}\b", v_code).group(0)
-                        print(v_code)
+                #         # Regex to remove the unnecessary text, and keep only verification code
+                #         v_code = locator.text_content()
+                #         v_code = re.search(r"\b\d{6}\b", v_code).group(0)
+                #         print(v_code)
 
-                        # remove whitespace
-                        v_code = v_code.strip()
-                        print(f"Tencent Verification Code: {v_code}")
+                #         # remove whitespace
+                #         v_code = v_code.strip()
+                #         print(f"Tencent Verification Code: {v_code}")
 
-                        # delay 1second
-                        page.wait_for_timeout(1000)  
+                #         # delay 1second
+                #         page.wait_for_timeout(1000)  
 
-                        # Click gmail “inbox”
-                        page.locator('(//div[@class="aio UKr6le"])[1]').click()
+                #         # Click gmail “inbox”
+                #         page.locator('(//div[@class="aio UKr6le"])[1]').click()
                         
-                        # Switch to tencent tab
-                        page2.bring_to_front()  
+                #         # Switch to tencent tab
+                #         page2.bring_to_front()  
 
-                        # wait for "请输入通过邮件发送的验证码" to be appear
-                        page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").wait_for(timeout=0) 
+                #         # wait for "请输入通过邮件发送的验证码" to be appear
+                #         page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").wait_for(timeout=0) 
 
-                        # delay 1second
-                        page2.wait_for_timeout(1000) 
+                #         # delay 1second
+                #         page2.wait_for_timeout(1000) 
 
-                        # Copy Paste code
-                        pyperclip.copy(v_code)
-                        pyautogui.keyDown('command')
-                        pyautogui.press('v')
-                        pyautogui.keyUp('command')
+                #         # Copy Paste code
+                #         pyperclip.copy(v_code)
+                #         pyautogui.keyDown('command')
+                #         pyautogui.press('v')
+                #         pyautogui.keyUp('command')
 
-                        break
-                    else:
-                        if page2.locator("//h2[contains(text(),'账户信息')]").is_visible():
-                            break 
-                        else: 
-                            continue
+                #         break
+                #     else:
+                #         if page2.locator("//h2[contains(text(),'账户信息')]").is_visible():
+                #             break 
+                #         else: 
+                #             continue
 
 
                 # wait for "账户信息" to be appear
@@ -1811,14 +1820,14 @@ class Tencent(Automation, JavaScript_Style):
                 # Click "logout" to Login
                 page2.locator("//a[contains(text(),'退出')]").click()
 
-                # delay 1second
-                page2.wait_for_timeout(1000)
+                # delay 3second
+                page2.wait_for_timeout(3000)
 
                 # page reload
                 page2.reload()
 
-                # delay 1second
-                page2.wait_for_timeout(1000)
+                # delay 1.5second
+                page.wait_for_timeout(1500)
 
     # 腾讯云【国际站】CAM用户登录
     @classmethod
@@ -1925,14 +1934,14 @@ class Tencent(Automation, JavaScript_Style):
                 # Screenshot
                 ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
 
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 1second
+                page.wait_for_timeout(1000)
 
                 # Click "logout" to Login
                 page.locator("//a[contains(text(),'退出')]").click()
 
-                # delay 1second
-                page.wait_for_timeout(1000)
+                # delay 1.5second
+                page.wait_for_timeout(1500)
     
     # 腾讯云【国际站】ven295 (Tencent Website Bug)
     @classmethod
@@ -2053,11 +2062,8 @@ class Tencent(Automation, JavaScript_Style):
             # Click "logout" to Login
             page.locator("//a[contains(text(),'退出')]").click()
 
-            # delay 1second
-            page.wait_for_timeout(1000)
-
-            # refresh page
-            page.reload()
+            # delay 1.5second
+            page.wait_for_timeout(1500)
 
 # Huawei Automation
 class Huawei(Automation):
@@ -2192,11 +2198,9 @@ class Huawei(Automation):
                 # Click "logout" to Login
                 page.locator("//span[@id='cf_user_info_logout']").click()
 
-                # delay 2second
-                page.wait_for_timeout(2000)
+                # delay 3second
+                page.wait_for_timeout(3000)
 
-                # wait for "IAM用户登录" to be appear
-                page.locator("//span[contains(text(),'华为账号登录')]").wait_for(timeout=0) 
 
     # Huawei
     @classmethod
@@ -2327,9 +2331,6 @@ class Huawei(Automation):
             # delay 3second
             page.wait_for_timeout(3000)
 
-            # Refresh page
-            page.reload()
-
 # Ucloud Automation
 class Ucloud(Automation):
 
@@ -2414,11 +2415,14 @@ class Ucloud(Automation):
             # Screenshot
             ImageGrab.grab().save('./晚班水位/ven281.png')
 
+            # delay 1second
+            page.wait_for_timeout(1000)
+
             # Click "logout" to Login
             page.locator("//span[contains(text(),'退出账号')]").click()
 
-            # delay 1second
-            page.wait_for_timeout(1000)
+            # delay 3second
+            page.wait_for_timeout(3000)
 
 # Other Automation
 class Other_Cloud(Automation): 
@@ -2564,8 +2568,8 @@ class Other_Cloud(Automation):
                 # Click "logout" to Logout
                 page.locator("//a[@id='logout']").click()
 
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 3second
+                page.wait_for_timeout(3000)
 
     # SMS-MAN
     @classmethod
@@ -2640,8 +2644,8 @@ class Other_Cloud(Automation):
             # Screenshot
             ImageGrab.grab().save('./晚班水位/ven326.png')
             
-            # delay 1second
-            page.wait_for_timeout(1000)
+            # delay second
+            page.wait_for_timeout(3000)
 
     # 7211.com
     @classmethod
@@ -2729,8 +2733,8 @@ class Other_Cloud(Automation):
             # Click "退出“ logout 
             page.locator("//a[contains(text(),'退出')]").click()
 
-            # delay 0.5second
-            page.wait_for_timeout(500)
+            # delay 3second
+            page.wait_for_timeout(3000)
 
     # byteplus
     @classmethod
@@ -2816,8 +2820,8 @@ class Other_Cloud(Automation):
                 # Click "退出“ logout 
                 page.locator("//button[@class='bp-nav-btn bp-nav-btn-secondary bp-nav-btn-size-default bp-nav-btn-shape-square index-module__btn--3XoR5']").click()
 
-                # delay 2seconds
-                page.wait_for_timeout(2000)
+                # delay 3seconds
+                page.wait_for_timeout(3000)
 
 # Zentaowater & Noctoolwater Automation
 class Zentao_Noctool(Automation):
@@ -3045,15 +3049,15 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-# Aliyun.aliyun_CN()
-# Aliyun.aliyun_INT()
-# Aliyun.watermelon_aliyun_INT()
-# Aliyun.aliyun_INT_RAM()
-# Aliyun.watermelon_aliyun_INT_RAM()
+Aliyun.aliyun_CN()
+Aliyun.aliyun_INT()
+Aliyun.watermelon_aliyun_INT()
+Aliyun.aliyun_INT_RAM()
+Aliyun.watermelon_aliyun_INT_RAM()
 
-# # Tencent
-# Tencent.tencent_CN()
-# Tencent.tencent_CN_SUB()
+# Tencent
+Tencent.tencent_CN()
+Tencent.tencent_CN_SUB()
 Tencent.tencent_INT()
 Tencent.tencent_INT_CAM()
 Tencent.tencent_ven295()
@@ -3071,7 +3075,7 @@ Other_Cloud.s211()
 Other_Cloud.byteplus()
 Other_Cloud.sms_man()
 
-# Zentao & Noctool
+# # Zentao & Noctool
 Zentao_Noctool.zentaowater()
 Zentao_Noctool.noctoolwater()
 Zentao_Noctool.low_water()
