@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from pymongo import MongoClient
 from bson.objectid import ObjectId  
-from List_Aliyun_DDCaptcha import *   
 from AppKit import NSPasteboard, NSPasteboardTypePNG
 from playwright.sync_api import sync_playwright, expect
 
@@ -2356,8 +2355,8 @@ class Ucloud(Automation):
             # wait for "账号登录" to be appear
             page.locator("//div[@class='social-title-left']").wait_for(timeout=0) 
 
-            # delay 0.5second
-            page.wait_for_timeout(500)
+            # delay 1second
+            page.wait_for_timeout(1000)
 
             # click lastpass extension       
             pyautogui.click(x=1416, y=63)
@@ -2377,17 +2376,24 @@ class Ucloud(Automation):
             pyautogui.click(x=1260, y=170)
             # delay 1second
             page.wait_for_timeout(1000)
-
-            # Click "登录" to Login
-            page.locator("(//button[contains(text(),'登录')])[1]").click()
-
-            # wait for "私有网络" to be appear
-            page.locator("//h2[contains(text(),'私有网络')]").wait_for(timeout=0) 
+            
+            # Login, sometime button click the login already, website doesnt load to the credit page, have to click few times only successful to login
+            while True:
+                try:
+                    # wait for "私有网络" to be appear
+                    page.locator("//h2[contains(text(),'私有网络')]").wait_for(timeout=1000)
+                    break
+                except:
+                    try:
+                        # Click "登录" to Login
+                        page.locator("(//button[contains(text(),'登录')])[1]").click(timeout=1000)
+                    except:
+                        pass
 
             # delay 0.5second
             page.wait_for_timeout(500)
 
-            # Click Logout menu
+            # Click Profile menu
             page.locator("//img[@class='header-user-icon']").click()
 
             # wait for "账户余额" to be appear
