@@ -108,6 +108,11 @@ n_webpage = (
             # ven467 BytePlus
             "http://10.77.1.196/stocks/5225c3ed-b18a-42c2-bf1f-d83d7d2d6b2f/",         # ven434
             "http://10.77.1.196/stocks/13137e47-f739-4fd1-98c5-f406d1217606/",         # ven467
+
+            # Zoho
+            "http://10.77.1.196/stocks/78e1a25f-90c9-411c-b0cf-afc8bf6f2d3a/",         # ven263
+            "http://10.77.1.196/stocks/fa93bb62-8d1f-4165-9af3-fa65b47b5c05/",         # ven264
+            "http://10.77.1.196/stocks/a514fc1d-d261-41d2-8b4d-587bc6e78932/",         # ven487
             )
 
 if __name__ == "__main__":
