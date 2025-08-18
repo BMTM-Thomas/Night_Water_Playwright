@@ -12,15 +12,13 @@ n_webpage = (
             "http://10.77.1.196/stocks/8391ca52-1beb-4f16-b312-c69e342f6da2/",        # ven265
             "http://10.77.1.196/stocks/44b13810-530a-4ca5-a8ff-31ee6211c6cd/",        # ven290
             "http://10.77.1.196/stocks/4f458e2d-a886-4022-bf1a-e38ca128e5e0/",        # ven293
-            "http://10.77.1.196/stocks/0e935ef4-210a-4125-9197-12df5d20acb3/",        # ven312
-            "http://10.77.1.196/stocks/e0049f16-9a0b-4060-8ac8-5af3105430a2/",        # ven313
+            "http://10.77.1.196/stocks/0e935ef4-210a-4125-9197-12df5d20acb3/",        # ven312 
+            "http://10.77.1.196/stocks/e0049f16-9a0b-4060-8ac8-5af3105430a2/",        # ven313 
             "http://10.77.1.196/stocks/34500244-4f18-4d9c-8841-3127d086d1b3/",        # ven323
-            "http://10.77.1.196/stocks/4f2e9bc2-161f-4728-b9c6-cea9a5e9fd5d/",        # ven324
+            "http://10.77.1.196/stocks/4f2e9bc2-161f-4728-b9c6-cea9a5e9fd5d/",        # ven324 
             "http://10.77.1.196/stocks/066a52f4-c417-476d-a919-a538ad1d8470/",        # ven346
             "http://10.77.1.196/stocks/37288796-c782-4c30-8db5-ba7fddd19387/",        # ven356
             "http://10.77.1.196/stocks/bf2bb1cc-b262-4a3a-825d-699ab35d3624/",        # ven365
-            "http://10.77.1.196/stocks/582daf9f-e7ff-45c9-8bb3-709a730b647a/",        # ven395
-            "http://10.77.1.196/stocks/7bf522ca-105e-4675-834e-8e1840a316be/",        # ven396
             "http://10.77.1.196/stocks/8ab7601a-92bd-411f-af71-c250631acbf0/",        # ven413
             "http://10.77.1.196/stocks/4373dfec-f1f5-4946-b143-09f50bf6d4e0/",        # ven416
             "http://10.77.1.196/stocks/d3ca46ad-5dad-437c-9a0a-36efa12139c0/",        # ven419
@@ -72,7 +70,6 @@ n_webpage = (
 
             # 华为云 【IAM用户】OPSADMIN
             "http://10.77.1.196/stocks/26bd3732-37f5-472a-b288-479e60387c20/",         # ven236
-            "http://10.77.1.196/stocks/a919dcb6-c758-4999-81e0-8bd368909258/",         # ven237
             "http://10.77.1.196/stocks/9ab46783-8865-4b4a-b295-359bc3ed60a0/",         # ven267
             "http://10.77.1.196/stocks/3119022b-d9b2-4026-928f-99a8761c1c57/",         # ven268
             "http://10.77.1.196/stocks/658b722d-fa61-47f0-b59e-e92798a7c4dd/",         # ven273

@@ -154,13 +154,6 @@ class JavaScript_Style:
 # Plawright Automation Settings
 class Automation:
 
-    # Chrome Extension
-    EXTENSION_PATH = "/Users/n02-19/Desktop/playWright/chrome_Extension/lastPass"  # Extension
-    EXTENSION_PATH2 = "/Users/n02-19/Desktop/playWright/chrome_Extension/SelectorHub"  # Extension
-
-    # User Profile
-    USER_DATA_DIR = "/Users/n02-19/PlaywrightProfile"  # User Profile
-
     # MongoDB Serverless
     @staticmethod
     def mongodb_atlas():
@@ -176,6 +169,9 @@ class Automation:
         # Access Collection
         return db["Night_Database_2"]
     
+    # User Profile
+    USER_DATA_DIR = "/Users/n02-19/PlaywrightProfile"  # User Profile
+
     # Chrome CDP 
     chrome_proc = None
     @classmethod
@@ -184,13 +180,11 @@ class Automation:
         cls.chrome_proc = subprocess.Popen([
             "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
             "--remote-debugging-port=9222",
-            "--user-data-dir=/Users/n02-19/PlaywrightProfile",
             "--disable-session-crashed-bubble",
             "--hide-crash-restore-bubble",
             "--no-first-run",
             "--no-default-browser-check",
-            f"--disable-extensions-except={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
-            f"--load-extension={cls.EXTENSION_PATH},{cls.EXTENSION_PATH2}", # Adding Multiple Extensions, dont add any space after "," , else not working
+            f"--user-data-dir={cls.USER_DATA_DIR}",  # User Profile
         ],
         stdout=subprocess.DEVNULL,  # ✅ hide chrome cdp logs
         stderr=subprocess.DEVNULL   # ✅ hide chrome cdp logs
@@ -1607,27 +1601,28 @@ class Tencent(Automation, JavaScript_Style):
                 while True:
                     # if "请输入通过邮件发送的验证码" appear
                     if page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").is_visible():
-                        print("pass")
                         
                         # wait for "请输入通过邮件发送的验证码" to be appear
                         page2.locator("//div[@class='VerifyBox_mfa-international-verify-card__phone-label__K98Fv tcas-mfa-account-tip']").wait_for(timeout=0) 
 
+                        # delay 1.5 second
+                        page2.wait_for_timeout(1500)
+
                         # Click "发送验证码", but sometime it auto click already    
                         try:                             
-                            print("click")
-                            page2.locator("//a[contains(text(),'发送验证码')]").wait_for(timeout=5000)
+                            page2.locator("//a[contains(text(),'发送验证码')]").wait_for(timeout=1000)
                             page2.wait_for_timeout(1000)
                             page2.locator("//a[contains(text(),'发送验证码')]").click()
                             page2.wait_for_timeout(2000)
                         except:
                             pass
-
+                        
                         # Check whether have 3 dots loading image appear
                         if pyautogui.locateOnScreen("./image/tencent_3_dots.png", grayscale=True):
                             page2.wait_for_timeout(5000)
                         else:
                             pass
-
+                        
                         # wait for CAPTCHA "image验证" to be appear
                         while True:
                             # set iframe
@@ -2192,7 +2187,6 @@ class Huawei(Automation):
 
                 # delay 3second
                 page.wait_for_timeout(3000)
-
 
     # Huawei
     @classmethod
@@ -2825,6 +2819,20 @@ class Other_Cloud(Automation):
 # Zentaowater & Noctoolwater Automation
 class Zentao_Noctool(Automation):
 
+    @classmethod
+    def noctool_ChangeAcc(cls):
+        with sync_playwright() as p:  
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
+            # Open a new browser page
+            page = context.pages[0] 
+            page.goto("http://10.77.1.196/workorders/list/default/", wait_until="domcontentloaded")
+
+            time.sleep(1111111)
+
     # zentao 水位记录
     @classmethod
     def zentaowater(cls):
@@ -2846,6 +2854,9 @@ class Zentao_Noctool(Automation):
                 # Wait if "loginPanel" to be appear else pass
                 expect(page.locator("//div[@id='loginPanel']")).to_be_visible(timeout= 2000) 
 
+                # delay 1second
+                page.wait_for_timeout(1000)
+
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=63)
 
@@ -2863,8 +2874,8 @@ class Zentao_Noctool(Automation):
                 page.wait_for_timeout(1000)
                 # Click "登入" 
                 page.locator("//button[@id='submit']").click()
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 1second
+                page.wait_for_timeout(1000)
             except:
                 pass
 
@@ -2873,6 +2884,9 @@ class Zentao_Noctool(Automation):
 
             ## Wait for "晚班週期性業務(複製用)" to be appear
             iframe.locator("//*[@id='datatable-taskList']/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/a").wait_for(timeout=0) 
+
+            # Mouse Click
+            pyautogui.click(1563,502)
 
             ## Click "edit" 
             iframe.locator("//*[@id='datatable-taskList']/div[2]/div[3]/div/table/tbody/tr[1]/td/a[4]").click()
@@ -2912,8 +2926,8 @@ class Zentao_Noctool(Automation):
             # Mouse Click
             pyautogui.click(x=349, y=652)
 
-            # delay 0.5second
-            page.wait_for_timeout(500)
+            # delay 1second
+            page.wait_for_timeout(1000)
             
             # For loop Mongodb ID and Ven_ID
             for cloud_db, cloud_id in zip(all_Cloud_MONGODB, all_Cloud_ID): 
@@ -2989,10 +3003,10 @@ class Zentao_Noctool(Automation):
             mongodb_id = sum(all_Cloud_MONGODB, ())
             ven_id = sum(all_Cloud_ID, ())
 
-            for mongodb_id, ven_id, links in zip(mongodb_id, ven_id, n_webpage):
+            for mongodb_id_items, ven_id_items, links_items in zip(mongodb_id, ven_id, n_webpage):
 
                 # Go to the webpage
-                page.goto(links, wait_until="domcontentloaded")
+                page.goto(links_items, wait_until="domcontentloaded")
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -3013,7 +3027,7 @@ class Zentao_Noctool(Automation):
                 pre_credit = page.locator("//tbody/tr[1]/td[2]").text_content()
 
                 # Search mongodb database object ID
-                search_mongodb_id = {'_id': ObjectId(mongodb_id)}
+                search_mongodb_id = {'_id': ObjectId(mongodb_id_items)}
                 documents = collection.find_one(search_mongodb_id)
                 credit_value = documents.get('Credit', 'N/A') 
 
@@ -3022,7 +3036,7 @@ class Zentao_Noctool(Automation):
                 page.keyboard.press("Enter")  
 
                 # Yesterday record vs Today Record
-                print(f"{ven_id}= Yesterday_Record: {pre_credit}, Today_Record: {credit_value} \n") 
+                print(f"{ven_id_items}= Yesterday_Record: {pre_credit}, Today_Record: {credit_value} \n") 
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -3074,10 +3088,12 @@ Other_Cloud.s211()
 Other_Cloud.byteplus()
 Other_Cloud.sms_man()
 
-# # Zentao & Noctool
+# Zentao & Noctool
 Zentao_Noctool.zentaowater()
+# Zentao_Noctool.noctool_ChangeAcc()
 Zentao_Noctool.noctoolwater()
 Zentao_Noctool.low_water()
+
 
 # Timer, End Time
 end = time.perf_counter()

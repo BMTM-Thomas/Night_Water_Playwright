@@ -6,7 +6,7 @@
 aliyun_CN_ID =("ven338", "ven360", "ven387", "ven407",)
 
 # 阿里云【国际版】
-aliyun_INT_ID = ("ven137", "ven231", "ven244", "ven265", "ven290", "ven293", "ven312", "ven313", "ven323", "ven324", "ven346", "ven356", "ven365", "ven395", "ven396", "ven413", "ven416", "ven419", "ven422", "ven423", "ven430", "ven445 ecs", "ven446 ecs", "ven456", "ven457", "ven465", "ven477", "ven486", "ven491", "ven492",)
+aliyun_INT_ID = ("ven137", "ven231", "ven244", "ven265", "ven290", "ven293", "ven312", "ven313", "ven323", "ven324", "ven346", "ven356", "ven365", "ven413", "ven416", "ven419", "ven422", "ven423", "ven430", "ven445 ecs", "ven446 ecs", "ven456", "ven457", "ven465", "ven477", "ven486", "ven491", "ven492",)
 
 # watermelon【国际版】
 watermelon_aliyun_INT_ID = ("ven318", "ven319", "ven320",)
@@ -33,7 +33,7 @@ tencent_INT_ven295_ID = ("ven295",)
 tencent_CAM_ID = ("ven366", "ven469",)  
 
 # 华为云【OPSADMIN】【IAM用户登录】
-huawei_OPSADMIN_ID = ("ven236", "ven237", "ven267", "ven268", "ven273", "ven385", "ven388", "ven399", "ven400", "ven474",) 
+huawei_OPSADMIN_ID = ("ven236", "ven267", "ven268", "ven273", "ven385", "ven388", "ven399", "ven400", "ven474",) 
 
 # 华为云 【华为帐号登录】
 huawei_ID = ("ven303", "ven307", "ven342", "ven345", "ven472", "ven420", "ven425", "ven479",)
@@ -102,8 +102,6 @@ aliyun_INT_MONGODB = (
               "660515a0f93283220466908d", # ven346
               "660515a0f93283220466908e", # ven356
               "660515a0f93283220466908f", # ven365
-              "660515a0f932832204669090", # ven395
-              "660515a0f932832204669091", # ven396
               "660515a0f932832204669092", # ven413
               "660515a0f932832204669093", # ven416
               "660515a0f932832204669094", # ven419
@@ -112,7 +110,7 @@ aliyun_INT_MONGODB = (
               "660515a0f932832204669096", # ven430
               "668cb65284e94f7b668336ad", # ven445
               "681cceb513141d46c84297f6", # ven446
-              "66f2be0fb7142aba5987da35", # ven456
+              "66f2be0fb7142aba5987da35", # ven456 
               "67cffcb2668e38141a3fd184", # ven457
               "6749fbc984b9b381d74e721b", # ven465
               "67e90299c0cdff4c6fa7a949", # ven477
@@ -169,7 +167,6 @@ tencent_INT_ven295_MONGODB = (
 # 华为云【OPSADMIN】【IAM用户登录】
 huawei_OPSADMIN_MONGODB = (
               "660515a0f9328322046690b6", # ven236
-              "660515a0f9328322046690b7", # ven237
               "660515a0f9328322046690b9", # ven267
               "660515a0f9328322046690ba", # ven268
               "660515a0f9328322046690bb", # ven273
@@ -259,7 +256,6 @@ Tencent_Webpage = (
 # 华为云【OPSADMIN】【IAM用户登录】
 Huawei_Webpage = (
               "https://auth.huaweicloud.com/authui/login.html?id=hwc72804421&locale=zh-cn#/login",            # ven236
-              "https://auth.huaweicloud.com/authui/login.html?id=hwc07421725#/login",                         # ven237
               "https://auth.huaweicloud.com/authui/login.html?id=hid_-jcs3_zco-1c9bn#/login",                 # ven267 
               "https://auth.huaweicloud.com/authui/login.html?id=hid_afpdy3ndeg2pt1j#/login",                 # ven268
               "https://auth.huaweicloud.com/authui/login.html?id=hid_v4uabq_f1qhppn1#/login",                 # ven273 
