@@ -59,9 +59,6 @@ class MyChatGPT:
     # Step 2: Auto click tiles based on GPT response
     def extract_positions_and_click(self, response_text):
 
-        # Random Time Sleep
-        random_Sleep = random.uniform(0.5, 1)  # Random sleep between 0.5 to 1 second
-
         GRID_MAP = {
             "1-1": (703,441),
             "1-2": (787,435),
@@ -76,11 +73,7 @@ class MyChatGPT:
             if pos in GRID_MAP:
                 x, y = GRID_MAP[pos]
                 print(f"Clicking {pos} at ({x}, {y})")
-                # Random time sleep between 0.5 to 1 second
-                # time.sleep(random_Sleep)
                 pyautogui.click(x, y)  
-                # Random time sleep between 0.5 to 1 second
-                # time.sleep(random_Sleep)
             else:
                 print(f"[!] Unknown position: {pos}")
 
@@ -343,7 +336,6 @@ class Aliyun(Automation, JavaScript_Style):
                     # Extract Credit
                     __class__.red_Check(page.locator("//span[@class='amount']//span[1]"), "Extract Credit '费用'")
                     credit = page.locator("//span[@class='amount']//span[1]").text_content() 
-
                 else:
                     # Wait for "账户可用额度"
                     __class__.red_Check(page.locator("//div[@class='label'][contains(text(),'账户可用额度')]"), "Wait '账户可用额度'")
@@ -388,7 +380,6 @@ class Aliyun(Automation, JavaScript_Style):
                         # hover to menu
                         __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu'")
                         page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
-
 
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -448,11 +439,13 @@ class Aliyun(Automation, JavaScript_Style):
                     ## Get iframe
                     iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
 
-                    # Wait for "简体中文" to be appear
-                    __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
-
                     ## Wait for "登录" to be appear
                     __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '登录'")
+
+                    # Wait for “请输入密码” right hand side lastpass logo appear
+                    image_vault = None
+                    while image_vault is None:
+                        image_vault = pyautogui.locateOnScreen("./image/ali_int_wait_lastpass.png", grayscale = True)
                     
                     # click lastpass extension       
                     pyautogui.click(x=1416, y=62)
@@ -477,7 +470,7 @@ class Aliyun(Automation, JavaScript_Style):
                     __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                     iframe.locator('#fm-login-submit').click()
 
-                    # delay 3seconds
+                    # delay 3.0seconds
                     page.wait_for_timeout(3000)
 
                     # Drag and Drop Appear (Login appear)
@@ -510,7 +503,7 @@ class Aliyun(Automation, JavaScript_Style):
                     # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
                     while True:
                         try: 
-                            expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=3000)
+                            expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=500)
                             page.wait_for_timeout(1000)
                             page.reload()
                         except:
@@ -1058,11 +1051,27 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(page2.locator("//button[@type='button']"), "Click '下一步'")
                 page2.locator('//button[@type="button"]').click()
 
+                # delay 2seconds
+                page2.wait_for_timeout(2000)
+
+                # # Drag and Drop Appear (after 下一步 appear)
+                # while True:
+                #     #  if image found do something, else will error and stop
+                #     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
+    
+                #         cls.human_drag_slider(page)  
+
+                #         # delay 3seconds
+                #         page.wait_for_timeout(3000)
+
+                #     else:
+                #         break
+
                 # Wait for "*用户密码" appear
                 __class__.red_Check(page2.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
 
-                # delay 0.3second
-                page2.wait_for_timeout(300)
+                # delay 0.5second
+                page2.wait_for_timeout(500)
 
                 # Click “登录”
                 while True:
@@ -1098,7 +1107,6 @@ class Aliyun(Automation, JavaScript_Style):
                         page.wait_for_timeout(4000)
                     else:
                         raise TimeoutError("No new unread Alibaba Cloud email appeared in time.")
-                    
                     
                     # Check Alibaba Security Verification Code email, if Alibaba Security Verification Code email is too old dont use, else use
                     # Get current time 
@@ -1230,7 +1238,7 @@ class Aliyun(Automation, JavaScript_Style):
                 page2.wait_for_timeout(500)
 
 # Tencent Automation
-class Tencent(Automation, JavaScript_Style):
+class Tencent(Automation):
 
     # 腾讯云【中国站】
     @classmethod
@@ -1264,7 +1272,7 @@ class Tencent(Automation, JavaScript_Style):
                 pass
             
             # wait for "邮箱登录" to be appear
-            __class__.red_Check(page.locator("//div[contains(text(),'邮箱登录')]"), "Wait '邮箱登录'")
+            page.locator("//div[contains(text(),'邮箱登录')]").wait_for(timeout=0) 
             
             # Click "邮箱登录" to Login
             page.locator("//div[@class='accsys-tp-tabs__item-label'][contains(text(),'邮箱登录')]").click()
