@@ -281,21 +281,21 @@ class Aliyun(Automation, JavaScript_Style):
 
             # Open a new browser page
             page = context.pages[0] if context.pages else context.new_page()
-            page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home", wait_until="domcontentloaded", timeout= 0)
+            page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home", wait_until="domcontentloaded")
 
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
-                if page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=2000):
-                    __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "在 'RAM 用户登录' 切换到 '主账号登录'")  # Wait for "RAM 用户登录" to be appear
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # Click "主账号登录"
-                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Click '立即登录'")
-                    page.locator("//span[contains(text(),'主账号登录')]").click()
-                    # delay 1second
-                    page.wait_for_timeout(1000)
-                    # page go to a link
-                    page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home")
+                page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=4000)
+                __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "在 'RAM 用户登录' 切换到 '主账号登录'")  # Wait for "RAM 用户登录" to be appear
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                # Click "主账号登录"
+                __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Click '立即登录'")
+                page.locator("//span[contains(text(),'主账号登录')]").click()
+                # delay 1second
+                page.wait_for_timeout(1000)
+                # page go to a link
+                page.goto("https://account.aliyun.com/login/login.htm?oauth_callback=https://usercenter2.aliyun.com/home")
             except:
                 pass
  
@@ -430,17 +430,17 @@ class Aliyun(Automation, JavaScript_Style):
                 
                 # if is "RAM 用户登录" then click "主账号登录", else skip
                 try:
-                    if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
-                        __class__.red_Check(page.locator(":has-text('RAM 用户登录')"), "Wait 'RAM 用户登录'")
-                        # delay 0.5second
-                        page.wait_for_timeout(500)
-                        # Click "主账号登录"
-                        __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
-                        page.locator("//span[contains(text(),'主账号登录')]").click()
-                        # delay 0.5second
-                        page.wait_for_timeout(500)
-                        # page go to a link
-                        page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
+                    page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=4000)
+                    __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+                    # Click "主账号登录"
+                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
+                    page.locator("//span[contains(text(),'主账号登录')]").click()
+                    # delay 0.5second
+                    page.wait_for_timeout(500)
+                    # page go to a link
+                    page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
                 except:
                     pass
 
@@ -480,14 +480,6 @@ class Aliyun(Automation, JavaScript_Style):
                     # delay 3seconds
                     page.wait_for_timeout(3000)
 
-                    # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
-                    while True:
-                        try: 
-                            expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=1000)
-                            cls.human_drag_slider(page)
-                        except:
-                            break
-    
                     # Drag and Drop Appear (Login appear)
                     while True:
                         #  if image found do something, else will error and stop
@@ -508,13 +500,21 @@ class Aliyun(Automation, JavaScript_Style):
                             except:
                                 pass
                         else:
+                            ## Click "登录" to Login
+                            try:
+                                iframe.locator('#fm-login-submit').click(timeout=500)
+                            except:
+                                pass 
                             break
                     
-                    ## Click "登录" to Login
-                    try:
-                        iframe.locator('#fm-login-submit').click(timeout=500)
-                    except:
-                        pass 
+                    # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
+                    while True:
+                        try: 
+                            expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=3000)
+                            page.wait_for_timeout(1000)
+                            page.reload()
+                        except:
+                            break
 
                     # Wait "正常" to be appear
                     __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
@@ -591,17 +591,17 @@ class Aliyun(Automation, JavaScript_Style):
 
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
-                if page.wait_for_selector(":has-text('RAM 用户登录')", timeout=2000):
-                    __class__.red_Check(page.locator(":has-text('RAM 用户登录')"), "Wait 'RAM 用户登录'")
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # Click "主账号登录"
-                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
-                    page.locator("//span[contains(text(),'主账号登录')]").click()
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # page go to a link
-                    page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
+                page.wait_for_selector(":has-text('RAM 用户登录')", timeout=4000)
+                __class__.red_Check(page.locator(":has-text('RAM 用户登录')"), "Wait 'RAM 用户登录'")
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                # Click "主账号登录"
+                __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
+                page.locator("//span[contains(text(),'主账号登录')]").click()
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                # page go to a link
+                page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
             except:
                 pass
 
@@ -2926,8 +2926,8 @@ class Zentao_Noctool(Automation):
             # Mouse Click
             pyautogui.click(x=349, y=652)
 
-            # delay 1second
-            page.wait_for_timeout(1000)
+            # delay 1.5second
+            page.wait_for_timeout(1500)
             
             # For loop Mongodb ID and Ven_ID
             for cloud_db, cloud_id in zip(all_Cloud_MONGODB, all_Cloud_ID): 
@@ -3062,7 +3062,7 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-Aliyun.aliyun_CN()
+# Aliyun.aliyun_CN()
 Aliyun.aliyun_INT()
 Aliyun.watermelon_aliyun_INT()
 Aliyun.aliyun_INT_RAM()
