@@ -26,11 +26,11 @@ tencent_CN_SUB_ID = ("ven322",)
 # 腾讯云【国际站】
 tencent_INT_ID = ("ven314", "ven315", "ven327", "ven328", "ven367", "ven408", "ven415", "ven418", "ven428", "ven439", "ven441", "ven460", "ven464", "ven473",) 
 
-# Tencent (buggy tencent website)
-tencent_INT_ven295_ID = ("ven295",)
-
 # 腾讯云 CAM用户登录
 tencent_CAM_ID = ("ven366", "ven469",)  
+
+# Tencent (buggy tencent website)
+tencent_INT_ven295_ID = ("ven295",)
 
 # 华为云【OPSADMIN】【IAM用户登录】
 huawei_OPSADMIN_ID = ("ven236", "ven267", "ven268", "ven273", "ven385", "ven388", "ven399", "ven400", "ven474",) 
