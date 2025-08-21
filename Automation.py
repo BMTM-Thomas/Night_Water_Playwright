@@ -109,7 +109,7 @@ class JavaScript_Style:
 
                 document.body.appendChild(label);
             }}
-        """)
+        """, timeout=0)
 
     @staticmethod
     def green_Check(locator, text):
@@ -505,7 +505,6 @@ class Aliyun(Automation, JavaScript_Style):
                     while True:
                         try: 
                             expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=500)
-                            page.wait_for_timeout(1000)
                             page.reload()
                         except:
                             break
@@ -765,11 +764,14 @@ class Aliyun(Automation, JavaScript_Style):
             # Navigate to Aliyun Ram
             page.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
-            # delay 1.5seconds
-            page.wait_for_timeout(1500)
+            # delay 1second
+            page.wait_for_timeout(1000)
             
             # reload page
             page.reload()
+
+            # delay 1second
+            page.wait_for_timeout(1000)
 
            # For loop
             for ven_id in aliyun_INT_RAM_ID:
@@ -815,8 +817,8 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for "*用户密码" appear
                 __class__.red_Check(page.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
 
-                # delay 0.5second
-                page.wait_for_timeout(500)
+                # delay 1.5second
+                page.wait_for_timeout(1500)
 
                 # Click “登录”
                 __class__.red_Check(page.locator("//button[@type='submit']"), "Click '登录'")
@@ -916,27 +918,20 @@ class Aliyun(Automation, JavaScript_Style):
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
             context = browser.contexts[0] if browser.contexts else browser.new_context()
 
-            # Close all existing tabs (to avoid Gmail or wrong pages)
-            for pg in context.pages:
-                pg.close()
+            # Open a new browser page
+            page = context.pages[0] if context.pages else context.new_page()
 
-            # Create two new tabs
-            page = context.new_page()
-            page2 = context.new_page()
+            # Navigate to Aliyun Ram
+            page.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
-            # First Tab Navigate to Gmail
-            page.goto("https://mail.google.com/mail/u/0/?ogbl#inbox", wait_until="domcontentloaded")
-            # Second Tab Navigate to Aliyun Ram
-            page2.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
+            # delay 1second
+            page.wait_for_timeout(1000)
             
-            # delay 1.5seconds
-            page2.wait_for_timeout(1500)
-
-            # Refresh page
-            page2.reload()
+            # reload page
+            page.reload()
 
             # delay 1seconds
-            page2.wait_for_timeout(1000)
+            page.wait_for_timeout(1000)
 
             # For loop
             for ven_id in watermelon_aliyun_INT_RAM_ID:
@@ -944,15 +939,15 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for lastpass vault button image to appear
                 image_vault = None
                 while image_vault is None:
-                    page2.wait_for_timeout(1500)
-                    image_vault = pyautogui.locateOnScreen("./image/vault_0.png", grayscale = True)
+                    page.wait_for_timeout(1500)
+                    image_vault = pyautogui.locateOnScreen("./image/vault_00.png", grayscale = True)
                     # If image_vault is None, reload page2
                     if image_vault is None:
-                        page2.reload()
-                        page2.wait_for_timeout(1000)
+                        page.reload()
+                        page.wait_for_timeout(1000)
 
                 # wait for "RAM 用户登录" to be appear
-                __class__.red_Check(page2.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
+                __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
 
                 # click lastpass extension       
                 pyautogui.click(x=1416, y=63)
@@ -964,153 +959,87 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # lastpass search ven and click 
                 # delay 0.5second
-                page2.wait_for_timeout(500)
+                page.wait_for_timeout(500)
                 pyautogui.write(ven_id)
                 # delay 0.5second
-                page2.wait_for_timeout(500)
+                page.wait_for_timeout(500)
                 # Mouse Click
                 pyautogui.click(x=1260, y=170)
                 # delay 0.5second
-                page2.wait_for_timeout(500)
+                page.wait_for_timeout(500)
 
                 # Click "下一步" 
-                __class__.red_Check(page2.locator("//button[@type='button']"), "Click '下一步'")
-                page2.locator('//button[@type="button"]').click()
-
-                # delay 2seconds
-                page2.wait_for_timeout(2000)
-
-                # # Drag and Drop Appear (after 下一步 appear)
-                # while True:
-                #     #  if image found do something, else will error and stop
-                #     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-    
-                #         cls.human_drag_slider(page)  
-
-                #         # delay 3seconds
-                #         page.wait_for_timeout(3000)
-
-                #     else:
-                #         break
+                __class__.red_Check(page.locator("//button[@type='button']"), "Wait '下一步'")
+                page.locator('//button[@type="button"]').click()
 
                 # Wait for "*用户密码" appear
-                __class__.red_Check(page2.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
+                __class__.red_Check(page.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
 
-                # delay 1second
-                page2.wait_for_timeout(1000)
+                # delay 1.5second
+                page.wait_for_timeout(1500)
 
                 # Click “登录”
+                __class__.red_Check(page.locator("//button[@type='submit']"), "Click '登录'")
+                page.locator('//button[@type="submit"]').click(timeout=1000)
+
+                # delay 1seconds
+                page.wait_for_timeout(1000)
+
+                # Drag and Drop Appear (after 下一步 appear)
                 while True:
-                    try:
-                        page2.locator("//h3[contains(text(),'验证安全邮箱')]").wait_for(timeout=1000)
-                        break
-                    except:
-                        try:
-                            page2.locator('//button[@type="submit"]').click(timeout=1000)
-                            __class__.red_Check(page2.locator("//button[@type='submit']"), "Click '登录'")
-                        except:
-                            continue
+                    #  if image found do something, else will error and stop
+                    if pyautogui.locateOnScreen('./image/alidnd7.png') is not None:
+    
+                        cls.human_drag_slider(page)  
 
-                # Click "获取验证码" 
-                __class__.red_Check(page2.locator("//span[contains(text(),'获取验证码')]"), "Click '验证安全邮箱'")
-                # page2.locator('//span[contains(text(),"获取验证码")]').click()
+                        # delay 3seconds
+                        page.wait_for_timeout(3000)
 
-                # Switch to Gmail
-                page.bring_to_front()  
-
-                # 等待gmail alibaba验证码 跳出
-                try:
-                    # Loop until new unread mail arrives (max 2 minutes)
-                    for attempt in range(30):
-                        page.locator('//div[@aria-label="Refresh"]//div[@class="asa"]').click()
-                        page.wait_for_timeout(4000)
-                        matched_rows = page.locator("tr.zE:has-text('Alibaba Cloud'):has-text('Security Verification Code')")
-                        if matched_rows.count() > 0:
-                            break
                     else:
-                        raise TimeoutError("No new unread Alibaba Cloud email appeared in time.")
+                        break
 
-                    now = datetime.now()
-
-                    # Check top 5 matched unread emails
-                    for i in range(min(matched_rows.count(), 5)):
-                        try:
-                            row = matched_rows.nth(i)
-                            content = row.inner_text(timeout=3000)
-
-                            # Extract and parse the email time
-                            time_text = row.locator("span.bq3").nth(0).inner_text(timeout=3000)
-                            try:
-                                email_time = datetime.strptime(time_text, "%H:%M")
-                                email_time = now.replace(hour=email_time.hour, minute=email_time.minute, second=0, microsecond=0)
-                            except:
-                                continue  # Skip this email if time format fails
-
-                            # Only click if email is within 90 seconds
-                            if (now - email_time).total_seconds() <= 90:
-                                print("✅ Clicking valid verification email.")
-                                row.click()
-                                break
-                            else:
-                                print("⏳ Email too old, skip")
-                        except Exception as e:
-                            print("⚠️ Failed processing email row:", e)
-                            continue
-                except TimeoutError:
-                    print("❌ No unread Alibaba Cloud email appeared in time.")
-
-                # wait for ""1.  This code is required to complete your account verification or secure login process.""
-                page.locator("//p[contains(text(),'1.  This code is required to complete your account')]").wait_for(timeout=0)
-
-                # Regex to remove the unnecessary text, and keep only verification code
-                v_code = page.locator("//tbody//tr//p[2]").text_content()
-                v_code = re.search(r"Your verification code is:\s*(\d+)", v_code)
-                v_code = v_code.group(1)
-
-                # remove whitespace
-                v_code = v_code.strip()
-                print(f"Alibaba Verification Code: {v_code}")
-
-                # delay 1second
-                page.wait_for_timeout(1000)  
-
-                # Click gmail “inbox”
-                page.locator('(//div[@class="aio UKr6le"])[1]').click()
-                
-                # Switch to alibaba tab
-                page2.bring_to_front()  
-
-                # delay 1second
-                page2.wait_for_timeout(1000) 
-
-                # Wait for "验证安全邮箱" to be appear
-                __class__.red_Check(page2.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait ‘验证安全邮箱'")
-
-                # Click "x mark"
-                page2.locator('//i[@class="next-icon next-icon-close next-xs"]').click()
-                
-                # Fill Verification Code
-                page2.fill("//input[@id='EMAIL_CODE']", v_code)
+                # Wait for "验证安全邮箱" appear
+                __class__.red_Check(page.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
 
                 # delay 0.5second
-                page2.wait_for_timeout(500) 
+                page.wait_for_timeout(500)
+
+                # Click "获取验证码" 
+                page.locator('//span[contains(text(),"获取验证码")]').click()
+
+                # delay 0.5second
+                page.wait_for_timeout(500) 
+
+                # Call Gmail APi and get Verification code
+                service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.readonly'])
+                if code := wait_for_alibaba_verification_code(service):
+                    print("✅ Verification Code:", code)
+
+                # Click "x mark"
+                page.locator('//i[@class="next-icon next-icon-close next-xs"]').click()
+                
+                # Fill Verification Code
+                page.fill("//input[@id='EMAIL_CODE']", code)
+
+                # delay 0.5second
+                page.wait_for_timeout(500) 
 
                 # Click "提交验证码"
-                page2.locator('//button[@type="submit"]').click()
+                page.locator('//button[@type="submit"]').click()
 
                 # Wait for "本月消费概览" appear
-                __class__.red_Check(page2.locator("//span[contains(text(),'本月消费概览')]"), "Wait ‘本月消费概览'")
+                __class__.red_Check(page.locator("//span[contains(text(),'本月消费概览')]"), "Wait ‘本月消费概览'")
 
                 # Mouse Click
                 pyautogui.click(x=1100, y=287)
 
                 # Wait for "VISA" to be appear
-                __class__.red_Check(page2.locator("//span[@class='payment-cardrand-visa']"), "Wait ‘VISA Logo Appear'")
+                __class__.red_Check(page.locator("//span[@class='payment-cardrand-visa']"), "Wait ‘VISA Logo Appear'")
 
                 # Check if overdue payment
                 try:
-                    overdue = page2.locator("//p[@ng-repeat='item in vm.topTipsArr']").wait_for(timeout=2000)
-                    __class__.red_Check(page2.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
+                    overdue = page.locator("//p[@ng-repeat='item in vm.topTipsArr']").wait_for(timeout=2000)
+                    __class__.red_Check(page.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
                     print(f"{ven_id}= ", overdue)   
                 except:
                     pass
@@ -1119,21 +1048,21 @@ class Aliyun(Automation, JavaScript_Style):
                 ImageGrab.grab().save(f'./watermelon/{ven_id}.png')
                 
                 # Wait for "RAM 用户" to be appear
-                __class__.red_Check(page2.locator("//div[@class='sc-taltu8-3 CB-cquEbr']"), "Wait 'RAM 用户'")
+                __class__.red_Check(page.locator("//div[@class='sc-taltu8-3 CB-cquEbr']"), "Wait 'RAM 用户'")
 
                 # delay 0.3second
-                page2.wait_for_timeout(300)
+                page.wait_for_timeout(300)
 
                 # hover to menu
-                __class__.red_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+                __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
+                page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # if hover menu doesnt appear, rehover again
                 while True:
                     try:
                         # Wait for "安全管控" to be appear
-                        expect(page2.locator("//span[contains(text(),'安全管控')]")).to_be_visible(timeout = 1000) 
-                        __class__.red_Check(page2.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
+                        expect(page.locator("//span[contains(text(),'安全管控')]")).to_be_visible(timeout = 1000) 
+                        __class__.red_Check(page.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
                         break
                     except:
                         # Mouse Click
@@ -1141,21 +1070,21 @@ class Aliyun(Automation, JavaScript_Style):
                         # delay 0.5second
                         page.wait_for_timeout(500)
                         # hover to menu
-                        __class__.red_Check(page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), 'Hover Menu')
-                        page2.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+                        __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), 'Hover Menu')
+                        page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
 
                 # Wait for "安全管控" to be appear
-                __class__.red_Check(page2.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
+                __class__.red_Check(page.locator("//span[contains(text(),'安全管控')]"), "Wait '安全管控'")
 
                 # delay 0.5second
-                page2.wait_for_timeout(500)
+                page.wait_for_timeout(500)
 
                 # Click "退出登录" Logout
-                __class__.red_Check(page2.locator("//a[contains(text(),'退出登录')]"), "Click '退出登录'")
-                page2.locator("//a[contains(text(),'退出登录')]").click(force=True)
+                __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "Click '退出登录'")
+                page.locator("//a[contains(text(),'退出登录')]").click(force=True)
 
                 # delay 0.5second
-                page2.wait_for_timeout(500)
+                page.wait_for_timeout(500)
 
 # Tencent Automation
 class Tencent(Automation):
@@ -2989,9 +2918,9 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-# Aliyun.aliyun_CN()
-# Aliyun.aliyun_INT()
-# Aliyun.watermelon_aliyun_INT()
+Aliyun.aliyun_CN()
+Aliyun.aliyun_INT()
+Aliyun.watermelon_aliyun_INT()
 Aliyun.aliyun_INT_RAM()
 Aliyun.watermelon_aliyun_INT_RAM()
 
