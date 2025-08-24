@@ -1,7 +1,5 @@
 __pycache__
 晚班水位
-**/.DS_Store
-.vscode
 .venv
 chrome_Extension
 mongodb_api_key.txt
@@ -9,3 +7,4 @@ openai_api_key.txt
 .env
 api
 watermelon
+image
