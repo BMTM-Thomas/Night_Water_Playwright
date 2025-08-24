@@ -2,7 +2,6 @@ import re
 import os
 import time
 import atexit
-import base64
 import random
 import certifi
 import requests
@@ -11,7 +10,6 @@ import pyperclip
 import subprocess
 from PIL import ImageGrab
 from List_Zentao import *
-from openai import OpenAI
 from bson import ObjectId 
 from List_Noctool import *
 from datetime import datetime
@@ -19,64 +17,11 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from pymongo import MongoClient
 from api.gmail_api.reader import *
+from api.openai_api.auth import *
 from bson.objectid import ObjectId  
 from AppKit import NSPasteboard, NSPasteboardTypePNG
 from playwright.sync_api import sync_playwright, expect
 
-# OpenAI API
-class MyChatGPT:
-    """OpenAI GPT-4o API Client""" 
-
-    # OpenAI API Client Initialization
-    def __init__(self):
-        load_dotenv()
-        api_key = os.getenv("OPENAI_API_KEY")
-        self.client = OpenAI(api_key=api_key)
-
-    # Convert image to base64 
-    def image_file_to_base64(self, path):
-        with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-
-    # Step 1: Ask GPT-4o to analyze the image and read instruction 
-    def ask_gpt_about_image(self, image_path, prompt_text):
-        base64_img = self.image_file_to_base64(image_path)
-
-        response = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        { "type": "text", "text": prompt_text },
-                        { "type": "image_url", "image_url": { "url": f"data:image/png;base64,{base64_img}" } }
-                    ]
-                }
-            ],
-            max_tokens=300
-        )
-        return response.choices[0].message.content.strip()
-
-    # Step 2: Auto click tiles based on GPT response
-    def extract_positions_and_click(self, response_text):
-
-        GRID_MAP = {
-            "1-1": (703,441),
-            "1-2": (787,435),
-            "1-3": (938,427),
-            "2-1": (685,559),
-            "2-2": (789,534),
-            "2-3": (947,574),
-        }
-        
-        positions = re.findall(r"\d-\d", response_text)
-        for pos in positions:
-            if pos in GRID_MAP:
-                x, y = GRID_MAP[pos]
-                print(f"Clicking {pos} at ({x}, {y})")
-                pyautogui.click(x, y)  
-            else:
-                print(f"[!] Unknown position: {pos}")
 
 # Javascript element color
 class JavaScript_Style:
@@ -1175,12 +1120,11 @@ class Tencent(Automation):
                         screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))
                         screenshot.save('./晚班水位/ven182.png')
 
-                        gpt_client = MyChatGPT()
                         prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
-                        response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
+                        response_text = ask_gpt_about_image('./晚班水位/ven182.png', prompt)
                         print("🧠 GPT Response:", response_text)
 
-                        gpt_client.extract_positions_and_click(response_text)
+                        extract_positions_and_click(response_text)
                         iframe.locator("//button[@id='verifyBtn']").click()
 
                         # Mouse mouse to prevent it block the screenshot, causing chatgpt unable to solve captcha
@@ -1493,12 +1437,11 @@ class Tencent(Automation):
                                 screenshot = pyautogui.screenshot(region=(619, 296, 360, 359))
                                 screenshot.save('./晚班水位/ven182.png')
 
-                                gpt_client = MyChatGPT()
                                 prompt = "请根据截图中的提示，指出要点击的格子，例如 '1-2, 2-3'"
-                                response_text = gpt_client.ask_gpt_about_image('./晚班水位/ven182.png', prompt)
+                                response_text = ask_gpt_about_image('./晚班水位/ven182.png', prompt)
                                 print("🧠 GPT Response:", response_text)
 
-                                gpt_client.extract_positions_and_click(response_text)
+                                extract_positions_and_click(response_text)
                                 iframe.locator("//button[@id='verifyBtn']").click()
 
                                 # Mouse mouse to prevent it block the screenshot, causing chatgpt unable to solve captcha
@@ -1591,8 +1534,8 @@ class Tencent(Automation):
                 # Click "logout" to Login
                 page.locator("//a[contains(text(),'退出')]").click()
 
-                # delay 3second
-                page.wait_for_timeout(3000)
+                # delay 2second
+                page.wait_for_timeout(2000)
 
                 # page reload
                 page.reload()
