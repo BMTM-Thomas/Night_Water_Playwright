@@ -22,7 +22,6 @@ from bson.objectid import ObjectId
 from AppKit import NSPasteboard, NSPasteboardTypePNG
 from playwright.sync_api import sync_playwright, expect
 
-
 # Javascript element color
 class JavaScript_Style:
 
@@ -108,13 +107,14 @@ class Automation:
         # Access Collection
         return db["Night_Database_2"]
     
-    # User Profile
-    USER_DATA_DIR = "/Users/n02-19/PlaywrightProfile"  # User Profile
-
     # Chrome CDP 
     chrome_proc = None
     @classmethod
     def chrome_CDP(cls):
+
+        # User Profile
+        USER_DATA_DIR = "/Users/n02-19/PlaywrightProfile"  # User Profile
+
         # Step 1: Start Chrome normally
         cls.chrome_proc = subprocess.Popen([
             "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -123,7 +123,7 @@ class Automation:
             "--hide-crash-restore-bubble",
             "--no-first-run",
             "--no-default-browser-check",
-            f"--user-data-dir={cls.USER_DATA_DIR}",  # User Profile
+            f"--user-data-dir={USER_DATA_DIR}",  # User Profile
         ],
         stdout=subprocess.DEVNULL,  # ✅ hide chrome cdp logs
         stderr=subprocess.DEVNULL   # ✅ hide chrome cdp logs
