@@ -164,6 +164,7 @@ class Aliyun(Automation, JavaScript_Style):
     # Peform Drag and Drop (ALI_INT)
     @staticmethod
     def human_drag_slider(page):
+
         # --- Step 1: Try to find iframe ---
         iframe_locator = "iframe#alibaba-login-box"
         if page.locator(iframe_locator).count() > 0:
@@ -412,6 +413,13 @@ class Aliyun(Automation, JavaScript_Style):
                     pass
 
                 for ven_id in aliyun_INT_ID:
+                    
+                    # Freeze scroll to avoid auto-scrolling
+                    try:
+                        page.add_style_tag(content="html,body{overflow:hidden !important}")
+                    except Exception:
+                        pass 
+
                     ## Get iframe
                     iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
 
@@ -446,22 +454,19 @@ class Aliyun(Automation, JavaScript_Style):
                     __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                     iframe.locator('#fm-login-submit').click()
 
-                    # delay 3.0seconds
-                    page.wait_for_timeout(3000)
+                    # delay 4.0seconds
+                    page.wait_for_timeout(4000)
 
                     # Drag and Drop Appear (Login appear)
                     while True:
                         #  if image found do something, else will error and stop
                         if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-
-                            # delay 1.5seconds
-                            page.wait_for_timeout(1500)
                             
                             # drag and drop
                             cls.human_drag_slider(page)  
 
-                            # delay 3seconds
-                            page.wait_for_timeout(3000)
+                            # delay 1.5seconds
+                            page.wait_for_timeout(1500)
         
                             # if '登录阿里云账号' is there, means drag and drop failed
                             try:
@@ -613,22 +618,19 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                 iframe.locator('#fm-login-submit').click()
 
-                # delay 3seconds
-                page.wait_for_timeout(3000)
+                # delay 4seconds
+                page.wait_for_timeout(4000)
 
                 # If Drag and Drop Appear
                 while True:
                     #  if image found do something, else will error and stop
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-    
-                        # delay 1.5seconds
-                        page.wait_for_timeout(1500)
                         
                         # drag and drop
                         cls.human_drag_slider(page)  
 
-                        # delay 3seconds
-                        page.wait_for_timeout(3000)
+                        # delay 1.5seconds
+                        page.wait_for_timeout(1500)
     
                         # if '登录阿里云账号' is there, means drag and drop failed
                         try:
@@ -1381,6 +1383,21 @@ class Tencent(Automation):
                 # Click "登录" to Login
                 page.locator("//button[@type='submit']//span[contains(text(),'登录')]").click()
 
+                # delay 0.5second
+                page.wait_for_timeout(500)
+
+                # if Login Failed, refresh website and try login again
+                if page.locator("//p[contains(text(),'登录失败，请重试')]").is_visible():
+                    page.reload()
+                    # wait for "邮箱登录" to be appear
+                    page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl tcas-login-panel__box-title']").wait_for(timeout=0) 
+                    # delay 1second
+                    page.wait_for_timeout(1000)
+                    # Click "登录" to Login
+                    page.locator("//button[@type='submit']//span[contains(text(),'登录')]").click()
+                else:
+                    pass
+    
                 # delay 3seconds
                 page.wait_for_timeout(3000)
 
@@ -2775,8 +2792,8 @@ Automation.chrome_CDP()
 
 # Aliyun
 # Aliyun.aliyun_CN()
-# Aliyun.aliyun_INT()
-# Aliyun.watermelon_aliyun_INT()
+Aliyun.aliyun_INT()
+Aliyun.watermelon_aliyun_INT()
 # Aliyun.aliyun_INT_RAM()
 # Aliyun.watermelon_aliyun_INT_RAM()
 
