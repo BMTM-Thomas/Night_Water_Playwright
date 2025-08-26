@@ -161,7 +161,7 @@ class Automation:
 # Aliyun Automation
 class Aliyun(Automation, JavaScript_Style):
 
-    # Peform Drag and Drop
+    # Peform Drag and Drop (ALI_INT)
     @staticmethod
     def human_drag_slider(page):
         # --- Step 1: Try to find iframe ---
@@ -189,8 +189,38 @@ class Aliyun(Automation, JavaScript_Style):
         distance =  260
         page.mouse.move(start_x, start_y)
         page.mouse.down()
-
         steps = 25
+
+        for i in range(steps):
+            t = (i + 1) / steps
+            x = start_x + distance * t + random.uniform(-2, 2)
+            y = start_y + random.uniform(-1, 1)
+            page.mouse.move(x, y, steps=1)
+            time.sleep(random.uniform(0.01, 0.02))
+
+        page.mouse.up()
+
+    # Perform Drag and Drop (ALI_RAM)
+    def human_drag_slider_2(page):
+
+        # Step 1: Get the iframe
+        iframe_locator = page.frame_locator("iframe#baxia-dialog-content")
+
+        # Step 2: Locate the slider handle inside iframe
+        slider = iframe_locator.locator("#nc_1_n1z")
+        slider.wait_for(state="visible")
+
+        # Step 3: Get bounding box for the slider handle
+        box = slider.bounding_box()
+        start_x = box["x"] + box["width"] / 2
+        start_y = box["y"] + box["height"] / 2
+
+        # Step 4: Perform drag
+        distance = 800
+        page.mouse.move(start_x, start_y)
+        page.mouse.down()
+        steps = 80
+
         for i in range(steps):
             t = (i + 1) / steps
             x = start_x + distance * t + random.uniform(-2, 2)
@@ -423,7 +453,11 @@ class Aliyun(Automation, JavaScript_Style):
                     while True:
                         #  if image found do something, else will error and stop
                         if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-        
+
+                            # delay 1.5seconds
+                            page.wait_for_timeout(1500)
+                            
+                            # drag and drop
                             cls.human_drag_slider(page)  
 
                             # delay 3seconds
@@ -587,31 +621,11 @@ class Aliyun(Automation, JavaScript_Style):
                     #  if image found do something, else will error and stop
                     if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
     
-                        # Step 1 & 2 : Switch to outer then inner iframe
-                        iframe2 = page.frame_locator("iframe#alibaba-login-box").frame_locator("iframe#baxia-dialog-content")
-
-                        # Step 3: Locate the slider inside inner iframe
-                        slider = iframe2.locator("#nc_1_n1z")  # 滑块按钮
-
-                        # Step 4: Get bounding box (for exact coordinates)
-                        box = slider.bounding_box()
-
-                        start_x = box["x"] + box["width"] / 2
-                        start_y = box["y"] + box["height"] / 2
-
-                        # Step 5: Drag with random human-like movement
-                        distance = 260  # 调整为实际滑块长度
-                        page.mouse.move(start_x, start_y)
-                        page.mouse.down()
-
-                        steps = 20
-                        for i in range(steps):
-                            x = start_x + (distance / steps) * (i + 1) + random.uniform(-2, 2)
-                            y = start_y + random.uniform(-1, 1)
-                            page.mouse.move(x, y, steps=1)
-                            time.sleep(random.uniform(0.01, 0.03))
-
-                        page.mouse.up()
+                        # delay 1.5seconds
+                        page.wait_for_timeout(1500)
+                        
+                        # drag and drop
+                        cls.human_drag_slider(page)  
 
                         # delay 3seconds
                         page.wait_for_timeout(3000)
@@ -627,7 +641,15 @@ class Aliyun(Automation, JavaScript_Style):
                             pass
                     else:
                         break
-
+                
+                # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
+                while True:
+                        try: 
+                            expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=500)
+                            page.reload()
+                        except:
+                            break
+                
                 ## Click "登录" to Login
                 try:
                     iframe.locator('#fm-login-submit').click(timeout=500)
@@ -682,12 +704,6 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 3seconds
                 page.wait_for_timeout(3000)
 
-                # Refresh Page
-                page.reload()
-
-                # delay 3seconds
-                page.wait_for_timeout(3000)
-
     # Aliyun 国际版【RAM】    
     @classmethod
     def aliyun_INT_RAM(cls):
@@ -709,12 +725,6 @@ class Aliyun(Automation, JavaScript_Style):
             # Navigate to Aliyun Ram
             page.goto("https://signin.alibabacloud.com/5256975880117898.onaliyun.com/login.htm?callback=https%3A%2F%2Fusercenter2-intl.aliyun.com%2Fbilling%2F%23%2Faccount%2Foverview#/main", wait_until="domcontentloaded")
             
-            # delay 1second
-            page.wait_for_timeout(1000)
-            
-            # reload page
-            page.reload()
-
             # delay 1second
             page.wait_for_timeout(1000)
 
@@ -871,12 +881,6 @@ class Aliyun(Automation, JavaScript_Style):
             
             # delay 1second
             page.wait_for_timeout(1000)
-            
-            # reload page
-            page.reload()
-
-            # delay 1seconds
-            page.wait_for_timeout(1000)
 
             # For loop
             for ven_id in watermelon_aliyun_INT_RAM_ID:
@@ -927,15 +931,15 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(page.locator("//button[@type='submit']"), "Click '登录'")
                 page.locator('//button[@type="submit"]').click(timeout=1000)
 
-                # delay 1seconds
-                page.wait_for_timeout(1000)
+                # delay 3seconds
+                page.wait_for_timeout(3000)
 
                 # Drag and Drop Appear (after 下一步 appear)
                 while True:
                     #  if image found do something, else will error and stop
-                    if pyautogui.locateOnScreen('./image/alidnd7.png') is not None:
+                    if pyautogui.locateOnScreen('./image/alidnd7_2.png') is not None:
     
-                        cls.human_drag_slider(page)  
+                        cls.human_drag_slider_2(page)  
 
                         # delay 3seconds
                         page.wait_for_timeout(3000)
@@ -1309,12 +1313,6 @@ class Tencent(Automation):
             # Click "logout" to Login
             page.locator("//button[contains(text(),'退出')]").click()
 
-            # delay 3second
-            page.wait_for_timeout(3000)
-
-            # Refresh page
-            page.reload()
-
             # delay 1.5second
             page.wait_for_timeout(1500)
 
@@ -1342,11 +1340,8 @@ class Tencent(Automation):
             # Navigate to Tencent Cloud         
             page.goto("https://www.tencentcloud.com/zh/account/login?s_url=https://console.tencentcloud.com/expense/rmc/accountinfo", wait_until="domcontentloaded")
             
-            # delay 2second
-            page.wait_for_timeout(2000)
-
-            # refresh Webpage
-            page.reload() 
+            # delay 1second
+            page.wait_for_timeout(1000)
             
             # if is "CAM用户登录" then click "切换登录方式", else skip
             try:
@@ -1531,14 +1526,11 @@ class Tencent(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
-                # Click "logout" to Login
+                # Click "logout" to Logout
                 page.locator("//a[contains(text(),'退出')]").click()
 
                 # delay 2second
                 page.wait_for_timeout(2000)
-
-                # page reload
-                page.reload()
 
     # 腾讯云【国际站】CAM用户登录
     @classmethod
@@ -1680,12 +1672,6 @@ class Tencent(Automation):
                     page.locator("//button[contains(text(),'主账号登录')]").click()
             except:
                 pass
-
-            # delay 2seconds
-            page.wait_for_timeout(2000)
-
-            # Refresh page
-            page.reload()
 
             # wait for "邮箱登录" to be appear
             page.locator("//div[@class='LoginCommonBox_clg-mod-title__gpSTl tcas-login-panel__box-title']").wait_for(timeout=0) 
@@ -2788,11 +2774,11 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-Aliyun.aliyun_CN()
-Aliyun.aliyun_INT()
-Aliyun.watermelon_aliyun_INT()
-Aliyun.aliyun_INT_RAM()
-Aliyun.watermelon_aliyun_INT_RAM()
+# Aliyun.aliyun_CN()
+# Aliyun.aliyun_INT()
+# Aliyun.watermelon_aliyun_INT()
+# Aliyun.aliyun_INT_RAM()
+# Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
 Tencent.tencent_CN()
