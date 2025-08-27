@@ -1,9 +1,7 @@
 import re
-import os
 import time
 import atexit
 import random
-import certifi
 import requests
 import pyautogui
 import pyperclip
@@ -13,14 +11,14 @@ from List_Zentao import *
 from bson import ObjectId 
 from List_Noctool import *
 from datetime import datetime
-from dotenv import load_dotenv
 from datetime import timedelta
-from pymongo import MongoClient
 from api.gmail_api.reader import *
 from api.openai_api.auth import *
+from api.mongodb_api.auth import *
 from bson.objectid import ObjectId  
 from AppKit import NSPasteboard, NSPasteboardTypePNG
 from playwright.sync_api import sync_playwright, expect
+
 
 # Javascript element color
 class JavaScript_Style:
@@ -92,21 +90,6 @@ class JavaScript_Style:
 # Plawright Automation Settings
 class Automation:
 
-    # MongoDB Serverless
-    @staticmethod
-    def mongodb_atlas():
-        
-        # Call MongoDB Atlas API Key
-        load_dotenv()
-        mongodb_api_key = os.getenv("MONGODB_API_KEY")
-        
-        # MongoDB Atlas (Server)
-        client = MongoClient(mongodb_api_key,tlsCAFile=certifi.where())
-        # Access Database
-        db = client["Thomas"]
-        # Access Collection
-        return db["Night_Database_2"]
-    
     # Chrome CDP 
     chrome_proc = None
     @classmethod
@@ -239,8 +222,8 @@ class Aliyun(Automation, JavaScript_Style):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Wait for Chrome CDP to be ready
             cls.wait_for_cdp_ready()
@@ -379,179 +362,174 @@ class Aliyun(Automation, JavaScript_Style):
     # Aliyun 国际站
     @classmethod
     def aliyun_INT(cls):
-        try:
-            with sync_playwright() as p: 
+        with sync_playwright() as p: 
+            
+            # MongoDB ID
+            m_id = 0
+
+            # Launch MongoDB
+            collection = mongodb_atlas()
+
+            # Connect to running Chrome
+            browser = p.chromium.connect_over_cdp("http://localhost:9222")
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+
+            # Open a new browser page
+            page = context.pages[0] if context.pages else context.new_page()
+            page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview", wait_until="domcontentloaded")
+            
+            # if is "RAM 用户登录" then click "主账号登录", else skip
+            try:
+                page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=4000)
+                __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                # Click "主账号登录"
+                __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
+                page.locator("//span[contains(text(),'主账号登录')]").click()
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                # page go to a link
+                page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
+            except:
+                pass
+
+            for ven_id in aliyun_INT_ID:
                 
-                # MongoDB ID
-                m_id = 0
-
-                # Launch MongoDB Atlas
-                collection = __class__.mongodb_atlas()
-
-                # Connect to running Chrome
-                browser = p.chromium.connect_over_cdp("http://localhost:9222")
-                context = browser.contexts[0] if browser.contexts else browser.new_context()
-
-                # Open a new browser page
-                page = context.pages[0] if context.pages else context.new_page()
-                page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview", wait_until="domcontentloaded")
-                
-                # if is "RAM 用户登录" then click "主账号登录", else skip
+                # Freeze scroll to avoid auto-scrolling
                 try:
-                    page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=4000)
-                    __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # Click "主账号登录"
-                    __class__.red_Check(page.locator("//span[contains(text(),'主账号登录')]"), "Wait '主账号登录'")
-                    page.locator("//span[contains(text(),'主账号登录')]").click()
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # page go to a link
-                    page.goto("https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A%2F%2Fusercenter2-intl.console.alibabacloud.com%2Fbilling%2F#/account/overview")
-                except:
-                    pass
+                    page.add_style_tag(content="html,body{overflow:hidden !important}")
+                except Exception:
+                    pass 
 
-                for ven_id in aliyun_INT_ID:
-                    
-                    # Freeze scroll to avoid auto-scrolling
-                    try:
-                        page.add_style_tag(content="html,body{overflow:hidden !important}")
-                    except Exception:
-                        pass 
+                ## Get iframe
+                iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
 
-                    ## Get iframe
-                    iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
+                ## Wait for "登录" to be appear
+                __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '登录'")
 
-                    ## Wait for "登录" to be appear
-                    __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '登录'")
+                # Wait for “请输入密码” right hand side lastpass logo appear
+                image_vault = None
+                while image_vault is None:
+                    image_vault = pyautogui.locateOnScreen("./image/ali_int_wait_lastpass.png", grayscale = True)
+                
+                # click lastpass extension       
+                pyautogui.click(x=1416, y=62)
 
-                    # Wait for “请输入密码” right hand side lastpass logo appear
-                    image_vault = None
-                    while image_vault is None:
-                        image_vault = pyautogui.locateOnScreen("./image/ali_int_wait_lastpass.png", grayscale = True)
-                    
-                    # click lastpass extension       
-                    pyautogui.click(x=1416, y=62)
+                # Wait for lastpass vault button image to appear
+                image_vault = None
+                while image_vault is None:
+                    image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
 
-                    # Wait for lastpass vault button image to appear
-                    image_vault = None
-                    while image_vault is None:
-                        image_vault = pyautogui.locateOnScreen("./image/vault3.png", grayscale = True)
+                # lastpass search ven and click 
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                pyautogui.write(ven_id)
+                # delay 0.5second
+                page.wait_for_timeout(500)
+                # Mouse Click
+                pyautogui.click(x=1260, y=170)
+                # delay 0.5second
+                page.wait_for_timeout(500)
+
+                ## Click "登录" to Login
+                __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
+                iframe.locator('#fm-login-submit').click()
+
+                # delay 4.0seconds
+                page.wait_for_timeout(4000)
+
+                # Drag and Drop Appear (Login appear)
+                while True:
+                    #  if image found do something, else will error and stop
+                    if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
+                        
+                        # drag and drop
+                        cls.human_drag_slider(page)  
+
+                        # delay 1.5seconds
+                        page.wait_for_timeout(1500)
     
-                    # lastpass search ven and click 
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    pyautogui.write(ven_id)
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-                    # Mouse Click
-                    pyautogui.click(x=1260, y=170)
-                    # delay 0.5second
-                    page.wait_for_timeout(500)
-
-                    ## Click "登录" to Login
-                    __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
-                    iframe.locator('#fm-login-submit').click()
-
-                    # delay 4.0seconds
-                    page.wait_for_timeout(4000)
-
-                    # Drag and Drop Appear (Login appear)
-                    while True:
-                        #  if image found do something, else will error and stop
-                        if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-                            
-                            # drag and drop
-                            cls.human_drag_slider(page)  
-
-                            # delay 1.5seconds
-                            page.wait_for_timeout(1500)
-        
-                            # if '登录阿里云账号' is there, means drag and drop failed
-                            try:
-                                if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
-                                    # Mouse Click
-                                    pyautogui.click(x=1114, y=510)
-                                    # delay 1second
-                                    page.wait_for_timeout(1000)
-                            except:
-                                pass
-                        else:
-                            ## Click "登录" to Login
-                            try:
-                                iframe.locator('#fm-login-submit').click(timeout=500)
-                            except:
-                                pass 
-                            break
-                    
-                    # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
-                    while True:
-                        try: 
-                            expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=500)
-                            page.reload()
-                        except:
-                            break
-
-                    # Wait "正常" to be appear
-                    __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
-                    
-                    # Extract Credit
-                    __class__.red_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit ‘费用’")
-                    credit = page.locator("//div[@class='ng-binding']").text_content()
-    
-                    # Replace
-                    credit = credit.replace(' USD', '')
-
-                    # MongoDB Update Data
-                    mangos_id = {'_id': ObjectId(aliyun_INT_MONGODB[m_id])}
-                    collection.update_one(mangos_id, {"$set": {"Credit": credit}})
-                    print(f"{ven_id}= {credit}")
-                    # mongdb+id +1
-                    m_id += 1
-                    
-                    # Wait for "主账号" to be appear
-                    page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
-                    __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
-                    
-                    # delay 0.3second
-                    page.wait_for_timeout(300)
-
-                    # hover to menu
-                    __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
-                    page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
-
-                    # if hover menu doesnt appear, rehover again
-                    while True:
+                        # if '登录阿里云账号' is there, means drag and drop failed
                         try:
-                            # Wait for "安全设置" to be appear
-                            expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
-                            __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
-                            break
+                            if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
+                                # Mouse Click
+                                pyautogui.click(x=1114, y=510)
+                                # delay 1second
+                                page.wait_for_timeout(1000)
                         except:
-                            # Mouse Click
-                            pyautogui.click(x=1267, y=217)
-                            # delay 0.5second
-                            page.wait_for_timeout(500)
-                            # hover to menu
-                            page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+                            pass
+                    else:
+                        ## Click "登录" to Login
+                        try:
+                            iframe.locator('#fm-login-submit').click(timeout=500)
+                        except:
+                            pass 
+                        break
+                
+                # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
+                while True:
+                    try: 
+                        expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=500)
+                        page.reload()
+                    except:
+                        break
 
-                    # delay 0.3second
-                    page.wait_for_timeout(300)
+                # Wait "正常" to be appear
+                __class__.red_Check(page.locator("//span[contains(text(),'正常')]"), "Wait '正常'")
+                
+                # Extract Credit
+                __class__.red_Check(page.locator("//div[@class='ng-binding']"), "Extract Credit ‘费用’")
+                credit = page.locator("//div[@class='ng-binding']").text_content()
 
-                    # Screenshot
-                    ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
+                # Replace
+                credit = credit.replace(' USD', '')
 
-                    # Click "退出登录" Logout
-                    __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
-                    page.locator("//a[contains(text(),'退出登录')]").click(force=True)
-                    
-                    # delay 3second
-                    page.wait_for_timeout(3000)
+                # MongoDB Update Data
+                mangos_id = {'_id': ObjectId(aliyun_INT_MONGODB[m_id])}
+                collection.update_one(mangos_id, {"$set": {"Credit": credit}})
+                print(f"{ven_id}= {credit}")
+                # mongdb+id +1
+                m_id += 1
+                
+                # Wait for "主账号" to be appear
+                page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]").wait_for(timeout=0) 
+                __class__.red_Check(page.locator("(//div[@class='sc-taltu8-3 CB-cquEbr'])[1]"), "Wait '主账号'")
+                
+                # delay 0.3second
+                page.wait_for_timeout(300)
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            time.sleep(11111)
+                # hover to menu
+                __class__.red_Check(page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']"), "Hover to Menu!")
+                page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+
+                # if hover menu doesnt appear, rehover again
+                while True:
+                    try:
+                        # Wait for "安全设置" to be appear
+                        expect(page.locator("//span[contains(text(),'安全设置')]")).to_be_visible(timeout = 1000) 
+                        __class__.red_Check(page.locator("//span[contains(text(),'安全设置')]"), "Wait '安全设置'")
+                        break
+                    except:
+                        # Mouse Click
+                        pyautogui.click(x=1267, y=217)
+                        # delay 0.5second
+                        page.wait_for_timeout(500)
+                        # hover to menu
+                        page.locator("//div[@class='sc-168k6tv-0 sc-taltu8-0 CB-dQgHzF CB-hvlcZA']").hover()
+
+                # delay 0.3second
+                page.wait_for_timeout(300)
+
+                # Screenshot
+                ImageGrab.grab().save(f'./晚班水位/{ven_id}.png')
+
+                # Click "退出登录" Logout
+                __class__.red_Check(page.locator("//a[contains(text(),'退出登录')]"), "退出登录")
+                page.locator("//a[contains(text(),'退出登录')]").click(force=True)
+                
+                # delay 3second
+                page.wait_for_timeout(3000)
 
     # Watermelon Aliyun 国际站
     @classmethod
@@ -714,8 +692,8 @@ class Aliyun(Automation, JavaScript_Style):
             # MongoDB ID
             m_id = 0    
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -791,7 +769,7 @@ class Aliyun(Automation, JavaScript_Style):
                 page.locator('//span[contains(text(),"获取验证码")]').click()
 
                 # Call Gmail APi and get Verification code
-                service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.readonly'])
+                service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.modify'])
                 if code := wait_for_alibaba_verification_code(service):
                     print("✅ Verification Code:", code)
 
@@ -1049,7 +1027,7 @@ class Tencent(Automation):
             m_id = 0
 
             # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -1216,8 +1194,8 @@ class Tencent(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -1327,7 +1305,7 @@ class Tencent(Automation):
             m_id = 0
 
             # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            collection = mongodb_atlas()
 
             # Wait for Chrome CDP to be ready
             cls.wait_for_cdp_ready()
@@ -1557,8 +1535,8 @@ class Tencent(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -1671,8 +1649,8 @@ class Tencent(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -1790,8 +1768,8 @@ class Huawei(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -1923,8 +1901,8 @@ class Huawei(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2055,8 +2033,8 @@ class Ucloud(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2155,8 +2133,8 @@ class Other_Cloud(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2295,11 +2273,12 @@ class Other_Cloud(Automation):
     @classmethod
     def sms_man(cls):
         with sync_playwright() as p:  
-
+            
+            # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2375,8 +2354,8 @@ class Other_Cloud(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2464,8 +2443,8 @@ class Other_Cloud(Automation):
             # MongoDB ID
             m_id = 0
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2567,8 +2546,8 @@ class Zentao_Noctool(Automation):
     def zentaowater(cls):
         with sync_playwright() as p:  
 
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2711,8 +2690,8 @@ class Zentao_Noctool(Automation):
     def noctoolwater(cls):
         with sync_playwright() as p:  
         
-            # Launch MongoDB Atlas
-            collection = __class__.mongodb_atlas()
+            # Launch MongoDB
+            collection = mongodb_atlas()
 
             # Connect to running Chrome
             browser = p.chromium.connect_over_cdp("http://localhost:9222")
@@ -2774,7 +2753,7 @@ class Zentao_Noctool(Automation):
     def low_water ():
         
         print("\n【低于安全水位】\n")
-        collection = __class__.mongodb_atlas()
+        collection = mongodb_atlas()
         documents = collection.find()
 
         for doc in documents:
@@ -2791,11 +2770,11 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-# Aliyun.aliyun_CN()
+Aliyun.aliyun_CN()
 Aliyun.aliyun_INT()
 Aliyun.watermelon_aliyun_INT()
-# Aliyun.aliyun_INT_RAM()
-# Aliyun.watermelon_aliyun_INT_RAM()
+Aliyun.aliyun_INT_RAM()
+Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
 Tencent.tencent_CN()
