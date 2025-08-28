@@ -10,7 +10,6 @@ from PIL import ImageGrab
 from List_Zentao import *
 from bson import ObjectId 
 from List_Noctool import *
-from datetime import datetime
 from datetime import timedelta
 from api.gmail_api.reader import *
 from api.openai_api.auth import *
@@ -210,7 +209,7 @@ class Aliyun(Automation, JavaScript_Style):
             x = start_x + distance * t + random.uniform(-2, 2)
             y = start_y + random.uniform(-1, 1)
             page.mouse.move(x, y, steps=1)
-            time.sleep(random.uniform(0.01, 0.02))
+            time.sleep(random.uniform(0.005, 0.01))
 
         page.mouse.up()
 
@@ -752,8 +751,8 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for "*用户密码" appear
                 __class__.red_Check(page.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
 
-                # delay 1.5second
-                page.wait_for_timeout(1500)
+                # delay 1second
+                page.wait_for_timeout(1000)
 
                 # Click “登录”
                 __class__.red_Check(page.locator("//button[@type='submit']"), "Click '登录'")
@@ -904,28 +903,12 @@ class Aliyun(Automation, JavaScript_Style):
                 # Wait for "*用户密码" appear
                 __class__.red_Check(page.locator("//label[contains(text(),'用户密码')]"), "Wait '*用户密码'")
 
-                # delay 1.5second
-                page.wait_for_timeout(1500)
+                # delay 1second
+                page.wait_for_timeout(1000)
 
                 # Click “登录”
                 __class__.red_Check(page.locator("//button[@type='submit']"), "Click '登录'")
                 page.locator('//button[@type="submit"]').click(timeout=1000)
-
-                # delay 3seconds
-                page.wait_for_timeout(3000)
-
-                # Drag and Drop Appear (after 下一步 appear)
-                while True:
-                    #  if image found do something, else will error and stop
-                    if pyautogui.locateOnScreen('./image/alidnd7_2.png') is not None:
-    
-                        cls.human_drag_slider_2(page)  
-
-                        # delay 3seconds
-                        page.wait_for_timeout(3000)
-
-                    else:
-                        break
 
                 # Wait for "验证安全邮箱" appear
                 __class__.red_Check(page.locator("//h3[contains(text(),'验证安全邮箱')]"), "Wait '验证安全邮箱'")
@@ -936,11 +919,8 @@ class Aliyun(Automation, JavaScript_Style):
                 # Click "获取验证码" 
                 page.locator('//span[contains(text(),"获取验证码")]').click()
 
-                # delay 0.5second
-                page.wait_for_timeout(500) 
-
                 # Call Gmail APi and get Verification code
-                service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.readonly'])
+                service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.modify'])
                 if code := wait_for_alibaba_verification_code(service):
                     print("✅ Verification Code:", code)
 
