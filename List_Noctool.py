@@ -103,7 +103,6 @@ n_webpage = (
             "http://10.77.1.196/stocks/b6c5f050-82bf-45f6-aa32-04b4faab1161/",         # ven196
 
             # ven467 BytePlus
-            "http://10.77.1.196/stocks/5225c3ed-b18a-42c2-bf1f-d83d7d2d6b2f/",         # ven434
             "http://10.77.1.196/stocks/13137e47-f739-4fd1-98c5-f406d1217606/",         # ven467
 
             # Zoho

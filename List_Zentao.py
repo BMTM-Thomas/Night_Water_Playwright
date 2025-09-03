@@ -15,7 +15,7 @@ watermelon_aliyun_INT_ID = ("ven318", "ven319", "ven320",)
 aliyun_INT_RAM_ID = ("ven136", "ven148",)
 
 # watermelon【国际版】【RAM】
-watermelon_aliyun_INT_RAM_ID = ("ven191", "ven192", "ven193", "ven194", "ven195", "ven221", "ven240", "ven241", "ven242",)
+watermelon_aliyun_INT_RAM_ID = ("ven221", "ven192", "ven193", "ven194", "ven195", "ven221", "ven240", "ven241", "ven242",)
 
 # 腾讯云【中国站】
 tencent_CN_ID = ("ven182",)  
@@ -51,7 +51,7 @@ sms_ID = ("ven326",)
 S211_ID = ("ven196",)  
 
 # byteplus
-byteplus_ID = ("ven434", "ven467",)
+byteplus_ID = ("ven467",)
 
 # Zoho
 zoho_ID = ("ven263", "ven264", "ven487")
@@ -212,7 +212,6 @@ S211_MONGODB = (
 
 #byteplus
 byteplus_MONGODB = (
-              "686b12517719599c9f228559", # ven434 bytePlus
               "67738a58cbe95821ef0efd24", # ven467 bytePlus
             )
 
