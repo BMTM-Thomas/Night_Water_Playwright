@@ -18,7 +18,6 @@ from bson.objectid import ObjectId
 from AppKit import NSPasteboard, NSPasteboardTypePNG
 from playwright.sync_api import sync_playwright, expect
 
-
 # Javascript element color
 class JavaScript_Style:
 
@@ -949,9 +948,8 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Check if overdue payment
                 try:
-                    page.locator("//p[@ng-repeat='item in vm.topTipsArr']").wait_for(timeout=500)
+                    overdue = page.locator("//p[@ng-repeat='item in vm.topTipsArr']").text_content(timeout=500)
                     __class__.red_Check(page.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
-                    overdue = page.locator("//p[@ng-repeat='item in vm.topTipsArr']").text_content()
                     print(f"{ven_id}= ", overdue)   
                 except:
                     pass
@@ -1428,7 +1426,7 @@ class Tencent(Automation):
                             else:
                                 break
                         
-                        pyautogui.click(348,571)
+                        pyautogui.click(348,599)
 
                         # Call Gmail APi and get Verification code
                         service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.readonly'])
@@ -2179,8 +2177,8 @@ class Other_Cloud(Automation):
                 page.wait_for_timeout(1000)
 
                 # Drag & Drop 登入
-                pyautogui.moveTo(872, 518, 0.4)
-                pyautogui.dragTo(1266, 507, button='left', duration=0.4)
+                pyautogui.moveTo(872, 544, 0.4)
+                pyautogui.dragTo(1266, 544, button='left', duration=0.4)
 
                 # wait for "Gname 一对一高效服务" to be appear
                 try:
@@ -2557,27 +2555,28 @@ class Zentao_Noctool(Automation):
                     image_vault = pyautogui.locateOnScreen('./image/vault3.png', grayscale = True)
                 print("Lastpass Image Vault Loaded") 
 
-                # delay 1second
-                page.wait_for_timeout(1000)
+                # delay 0.5second
+                page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(1176,212)   
-                # delay 1second
-                page.wait_for_timeout(1000)
+                pyautogui.click(x=1215, y=240) 
+                # delay 0.5second
+                page.wait_for_timeout(500)
                 # Click "登入" 
                 page.locator("//button[@id='submit']").click()
-                # delay 1second
-                page.wait_for_timeout(1000)
             except:
                 pass
-
+                
             ## Get iframe
             iframe = page.frame_locator("//div[@id='apps']//iframe[@id='appIframe-project']")
 
             ## Wait for "晚班週期性業務(複製用)" to be appear
             iframe.locator("//*[@id='datatable-taskList']/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/a").wait_for(timeout=0) 
 
-            # Mouse Click
-            pyautogui.click(1563,502)
+            # Click x "可升级版本"
+            try:
+                page.locator("//button[normalize-space()='×']").click(timeout=500)
+            except:
+                pass
 
             ## Click "edit" 
             iframe.locator("//*[@id='datatable-taskList']/div[2]/div[3]/div/table/tbody/tr[1]/td/a[4]").click()
@@ -2585,41 +2584,25 @@ class Zentao_Noctool(Automation):
             ## Wait for "任务名称" to be appear
             iframe.locator("//*[@id='dataform']/div[2]/div[1]/div/div[1]/div[1]").wait_for(timeout=0) 
 
+
+
             ## Wait for "备注" to be appear
             iframe.locator("//div[contains(text(),'备注')]").wait_for(timeout=0)
-            
-            # delay 0.5second
-            page.wait_for_timeout(500)
             
             ## Click "X" 
             try:
                 iframe.locator("//div[@id='pri_chosen']//abbr[@class='search-choice-close']").click(timeout=1000)
             except:
-                # Mouse Click
-                pyautogui.click(x=365, y=749)
                 pass
 
             # delay 0.5second
             page.wait_for_timeout(500) 
 
             # Mouse Click
-            pyautogui.click(x=365, y=749)
-
-            # delay 0.5second
-            page.wait_for_timeout(500)
-
-            # keyboard Enter 8 times
-            pyautogui.press('enter', presses = 8)
-
-            # delay 0.5second
-            page.wait_for_timeout(500)
-            
+            pyautogui.click(x=365, y=745)
             # Mouse Click
-            pyautogui.click(x=349, y=652)
+            pyautogui.click(x=365, y=745) 
 
-            # delay 1.5second
-            page.wait_for_timeout(1500)
-            
             # For loop Mongodb ID and Ven_ID
             for cloud_db, cloud_id in zip(all_Cloud_MONGODB, all_Cloud_ID): 
                 for mongodb_id, ven_id in zip(cloud_db, cloud_id):
@@ -2753,10 +2736,10 @@ start = time.perf_counter()
 Automation.chrome_CDP()
 
 # Aliyun
-# Aliyun.aliyun_CN()
-# Aliyun.aliyun_INT()
-# Aliyun.watermelon_aliyun_INT()
-# Aliyun.aliyun_INT_RAM()
+Aliyun.aliyun_CN()
+Aliyun.aliyun_INT()
+Aliyun.watermelon_aliyun_INT()
+Aliyun.aliyun_INT_RAM()
 Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
@@ -2782,7 +2765,7 @@ Other_Cloud.sms_man()
 # Zentao & Noctool
 Zentao_Noctool.zentaowater()
 # Zentao_Noctool.noctool_ChangeAcc()
-Zentao_Noctool.noctoolwater()
+# Zentao_Noctool.noctoolwater()
 Zentao_Noctool.low_water()
 
 
