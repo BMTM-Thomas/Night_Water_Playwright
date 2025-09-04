@@ -266,7 +266,7 @@ class Aliyun(Automation, JavaScript_Style):
                 pyautogui.click(x=1345, y=384)
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=62)
+                pyautogui.click(x=1416, y=85)
   
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -280,7 +280,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 1second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
             
@@ -415,7 +415,7 @@ class Aliyun(Automation, JavaScript_Style):
                     image_vault = pyautogui.locateOnScreen("./image/ali_int_wait_lastpass.png", grayscale = True)
                 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=62)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -429,7 +429,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -575,7 +575,7 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(iframe.locator("//input[@id='fm-login-submit']"), "Wait '简体中文'")
                 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -589,7 +589,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -728,7 +728,7 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -742,7 +742,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -880,7 +880,7 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "Wait 'RAM 用户登录'")
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -894,7 +894,7 @@ class Aliyun(Automation, JavaScript_Style):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -949,8 +949,9 @@ class Aliyun(Automation, JavaScript_Style):
 
                 # Check if overdue payment
                 try:
-                    overdue = page.locator("//p[@ng-repeat='item in vm.topTipsArr']").text_content()
+                    page.locator("//p[@ng-repeat='item in vm.topTipsArr']").wait_for(timeout=500)
                     __class__.red_Check(page.locator("//p[@ng-repeat='item in vm.topTipsArr']"), "欠费 欠费 欠费 欠费 欠费 欠费'")
+                    overdue = page.locator("//p[@ng-repeat='item in vm.topTipsArr']").text_content()
                     print(f"{ven_id}= ", overdue)   
                 except:
                     pass
@@ -1038,7 +1039,7 @@ class Tencent(Automation):
             page.locator("//div[@class='accsys-tp-tabs__item-label'][contains(text(),'邮箱登录')]").click()
 
             # click lastpass extension       
-            pyautogui.click(x=1416, y=63)
+            pyautogui.click(x=1416, y=85)
 
             # Wait for lastpass vault button image to appear
             image_vault = None
@@ -1052,7 +1053,7 @@ class Tencent(Automation):
             # delay 0.5second
             page.wait_for_timeout(500)
             # Mouse Click
-            pyautogui.click(x=1260, y=170)
+            pyautogui.click(x=1220, y=197)
             # delay 0.5second
             page.wait_for_timeout(500)
 
@@ -1191,7 +1192,7 @@ class Tencent(Automation):
             page.locator("//h3[contains(text(),'子用户登录')]").wait_for(timeout=0) 
 
             # click lastpass extension       
-            pyautogui.click(x=1416, y=63)
+            pyautogui.click(x=1416, y=85)
 
             # Wait for lastpass vault button image to appear
             image_vault = None
@@ -1205,7 +1206,7 @@ class Tencent(Automation):
             # delay 0.5second
             page.wait_for_timeout(500)
             # Mouse Click
-            pyautogui.click(x=1260, y=170)
+            pyautogui.click(x=1220, y=197)
             # delay 0.5second
             page.wait_for_timeout(500)
 
@@ -1322,7 +1323,7 @@ class Tencent(Automation):
                 page.wait_for_timeout(500)
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -1336,7 +1337,7 @@ class Tencent(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -1542,7 +1543,7 @@ class Tencent(Automation):
                 page.wait_for_timeout(500)
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -1556,7 +1557,7 @@ class Tencent(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -1657,7 +1658,7 @@ class Tencent(Automation):
             page.wait_for_timeout(500)
 
             # click lastpass extension       
-            pyautogui.click(x=1416, y=63)
+            pyautogui.click(x=1416, y=85)
 
             # Wait for lastpass vault button image to appear
             image_vault = None
@@ -1671,7 +1672,7 @@ class Tencent(Automation):
             # delay 0.5second
             page.wait_for_timeout(500)
             # Mouse Click
-            pyautogui.click(x=1260, y=170)
+            pyautogui.click(x=1220, y=197)
             # delay 0.5second
             page.wait_for_timeout(500)
 
@@ -1772,7 +1773,7 @@ class Huawei(Automation):
                 page.wait_for_timeout(500)
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -1786,7 +1787,7 @@ class Huawei(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -1903,7 +1904,7 @@ class Huawei(Automation):
                 page.wait_for_timeout(500)
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -1917,7 +1918,7 @@ class Huawei(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -2033,7 +2034,7 @@ class Ucloud(Automation):
             page.wait_for_timeout(1000)
 
             # click lastpass extension       
-            pyautogui.click(x=1416, y=63)
+            pyautogui.click(x=1416, y=85)
 
             # Wait for lastpass vault button image to appear
             image_vault = None
@@ -2047,7 +2048,7 @@ class Ucloud(Automation):
             # delay 0.5second
             page.wait_for_timeout(500)
             # Mouse Click
-            pyautogui.click(x=1260, y=170)
+            pyautogui.click(x=1220, y=197)
             # delay 1second
             page.wait_for_timeout(1000)
             
@@ -2159,7 +2160,7 @@ class Other_Cloud(Automation):
                 page.wait_for_timeout(500)
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -2173,7 +2174,7 @@ class Other_Cloud(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 1second
                 page.wait_for_timeout(1000)
 
@@ -2445,7 +2446,7 @@ class Other_Cloud(Automation):
                 page.wait_for_timeout(500) 
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for lastpass vault button image to appear
                 image_vault = None
@@ -2459,7 +2460,7 @@ class Other_Cloud(Automation):
                 # delay 0.5second
                 page.wait_for_timeout(500)
                 # Mouse Click
-                pyautogui.click(x=1260, y=170)
+                pyautogui.click(x=1220, y=197)
                 # delay 0.5second
                 page.wait_for_timeout(500)
 
@@ -2548,7 +2549,7 @@ class Zentao_Noctool(Automation):
                 page.wait_for_timeout(1000)
 
                 # click lastpass extension       
-                pyautogui.click(x=1416, y=63)
+                pyautogui.click(x=1416, y=85)
 
                 # Wait for image Appear
                 image_vault = None
@@ -2753,9 +2754,9 @@ Automation.chrome_CDP()
 
 # Aliyun
 # Aliyun.aliyun_CN()
-Aliyun.aliyun_INT()
-Aliyun.watermelon_aliyun_INT()
-Aliyun.aliyun_INT_RAM()
+# Aliyun.aliyun_INT()
+# Aliyun.watermelon_aliyun_INT()
+# Aliyun.aliyun_INT_RAM()
 Aliyun.watermelon_aliyun_INT_RAM()
 
 # Tencent
