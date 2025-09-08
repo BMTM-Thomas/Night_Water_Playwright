@@ -10,7 +10,7 @@ echo >> /Users/automation/.zprofile
 https://www.python.org/downloads/
 
 # Visual Studio Code
-https://code.visualstudio.com/insiders/
+https://code.visualstudio.com
 
 # Open Terminal install package
 brew install git

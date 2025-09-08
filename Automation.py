@@ -1753,7 +1753,7 @@ class Huawei(Automation):
 
                     try:
                         # mark checkbox
-                        page.check("//input[@id='promptBindAndEnableCheckbox']", timeout=500)
+                        page.check("//input[@id='promptBindAndEnableCheckbox']", timeout=1000)
                         # Button click 暂不绑定
                         page.locator("xpath=//div[@id='promptBindAndEnableCancelBtn']").click(force=True)  
                     except:
@@ -1761,11 +1761,11 @@ class Huawei(Automation):
 
                     try:
                         # Click “验证码”
-                        page.locator("//a[@id='getVerifyCodeBtn']").click(timeout=500, force=True) 
+                        page.locator("//a[@id='getVerifyCodeBtn']").click(timeout=1000, force=True) 
 
                         # Call Gmail APi and get Verification code
                         service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.modify'])
-                        if code := wait_for_huawei_verification_code(service):
+                        if code := wait_for_huawei_OPSADMIN_verification_code(service):
                             print("✅ Verification Code:", code) 
 
                         # Fill Verification Code
