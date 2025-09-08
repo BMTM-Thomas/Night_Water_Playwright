@@ -236,7 +236,7 @@ class Aliyun(Automation, JavaScript_Style):
 
             # if is "RAM 用户登录" then click "主账号登录", else skip
             try:
-                page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=4000)
+                page.wait_for_selector("//h3[contains(text(),'RAM 用户登录')]", timeout=3000)
                 __class__.red_Check(page.locator("//h3[contains(text(),'RAM 用户登录')]"), "在 'RAM 用户登录' 切换到 '主账号登录'")  # Wait for "RAM 用户登录" to be appear
                 # delay 0.5second
                 page.wait_for_timeout(500)
@@ -436,36 +436,14 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                 iframe.locator('#fm-login-submit').click()
 
-                # delay 4.0seconds
-                page.wait_for_timeout(4000)
-
-                # Drag and Drop Appear (Login appear)
-                while True:
-                    #  if image found do something, else will error and stop
-                    if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-                        
-                        # drag and drop
-                        cls.human_drag_slider(page)  
-
-                        # delay 1.5seconds
-                        page.wait_for_timeout(1500)
-    
-                        # if '登录阿里云账号' is there, means drag and drop failed
-                        try:
-                            if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
-                                # Mouse Click
-                                pyautogui.click(x=1114, y=510)
-                                # delay 1second
-                                page.wait_for_timeout(1000)
-                        except:
-                            pass
-                    else:
-                        ## Click "登录" to Login
-                        try:
-                            iframe.locator('#fm-login-submit').click(timeout=500)
-                        except:
-                            pass 
-                        break
+                # Drag and Drop Appear
+                try:
+                    expect(iframe2.locator("//div[@id='nocaptcha']")).to_be_visible(timeout = 3000) 
+                    expect(iframe2.locator("//span[@class='nc-lang-cnt']")).to_be_visible(timeout = 3000) 
+                    # drag and drop
+                    cls.human_drag_slider(page)  
+                except:
+                    pass
                 
                 # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
                 while True:
@@ -564,8 +542,8 @@ class Aliyun(Automation, JavaScript_Style):
             
                 ## Get iframe
                 iframe = page.frame_locator("//iframe[@id='alibaba-login-box']")
-                # iframe2 = page.frame_locator("iframe#alibaba-login-box") \
-                #             .frame_locator("iframe#baxia-dialog-content")
+                iframe2 = page.frame_locator("iframe#alibaba-login-box") \
+                            .frame_locator("iframe#baxia-dialog-content")
 
                 # Wait for "简体中文" to be appear
                 __class__.red_Check(page.locator("(//span[contains(text(),'简体中文')])[1]"), "Wait '简体中文'")
@@ -596,31 +574,14 @@ class Aliyun(Automation, JavaScript_Style):
                 __class__.red_Check(iframe.locator("#fm-login-submit"), "Click '登录'")
                 iframe.locator('#fm-login-submit').click()
 
-                # delay 4seconds
-                page.wait_for_timeout(4000)
-
-                # If Drag and Drop Appear
-                while True:
-                    #  if image found do something, else will error and stop
-                    if pyautogui.locateOnScreen('./image/alidnd.png') is not None:
-                        
-                        # drag and drop
-                        cls.human_drag_slider(page)  
-
-                        # delay 1.5seconds
-                        page.wait_for_timeout(1500)
-    
-                        # if '登录阿里云账号' is there, means drag and drop failed
-                        try:
-                            if iframe.locator("//div[@id='login-title']").text_content(timeout=3000) == "登录阿里云账号":
-                                # Mouse Click
-                                pyautogui.click(x=1114, y=510)
-                                # delay 1second
-                                page.wait_for_timeout(1000)
-                        except:
-                            pass
-                    else:
-                        break
+                # Drag and Drop Appear
+                try:
+                    expect(iframe2.locator("//div[@id='nocaptcha']")).to_be_visible(timeout = 3000) 
+                    expect(iframe2.locator("//span[@class='nc-lang-cnt']")).to_be_visible(timeout = 3000) 
+                    # drag and drop
+                    cls.human_drag_slider(page)  
+                except:
+                    pass
                 
                 # If Drag and Drop Appear (Sorry, we have detected unusual traffic from your network.)
                 while True:
@@ -628,13 +589,7 @@ class Aliyun(Automation, JavaScript_Style):
                             expect(page.locator("text=Sorry, we have detected unusual traffic from your network.")) .to_be_visible(timeout=500)
                             page.reload()
                         except:
-                            break
-                
-                ## Click "登录" to Login
-                try:
-                    iframe.locator('#fm-login-submit').click(timeout=500)
-                except:
-                    pass    
+                            break 
                 
                 # Wait "VISA Logo" to be appear
                 __class__.red_Check(page.locator("//span[@class='payment-cardrand-visa']"), "Wait 'VISA Logo Appear'")
@@ -1429,7 +1384,7 @@ class Tencent(Automation):
                         pyautogui.click(348,599)
 
                         # Call Gmail APi and get Verification code
-                        service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.readonly'])
+                        service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.modify'])
                         if code := wait_for_tencent_verification_code(service):
                             print("Verification Code:", code)
 
@@ -1796,11 +1751,34 @@ class Huawei(Automation):
                     # wait for "登录验证" to be appear
                     expect(page.locator("//p[@class='ng-binding']")).to_have_text("登录验证", timeout=3000)
 
-                    # mark checkbox
-                    page.check("//input[@id='promptBindAndEnableCheckbox']")
+                    try:
+                        # mark checkbox
+                        page.check("//input[@id='promptBindAndEnableCheckbox']", timeout=500)
+                        # Button click 暂不绑定
+                        page.locator("xpath=//div[@id='promptBindAndEnableCancelBtn']").click(force=True)  
+                    except:
+                        pass
 
-                    # Button click 暂不绑定
-                    page.locator("xpath=//div[@id='promptBindAndEnableCancelBtn']").click(force=True)  
+                    try:
+                        # Click “验证码”
+                        page.locator("//a[@id='getVerifyCodeBtn']").click(timeout=500, force=True) 
+
+                        # Call Gmail APi and get Verification code
+                        service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.modify'])
+                        if code := wait_for_huawei_verification_code(service):
+                            print("✅ Verification Code:", code) 
+
+                        # Fill Verification Code
+                        page.fill("//input[@placeholder='6位验证码']", code)
+
+                        # delay 0.5second
+                        page.wait_for_timeout(500)
+
+                        # Press Enter
+                        page.keyboard.press("Enter")
+
+                    except:
+                        pass
                 except:
                     pass
 
@@ -1923,16 +1901,49 @@ class Huawei(Automation):
                 # Click "登录" to Login
                 page.locator("//div[@class='hwid-btn hwid-btn-primary']").click()
 
-                # MFA Verification Appear, if appear do something... else skip...
                 try:
-                    # wait for "MFA设备类型" appear
-                    expect(page.locator("//div[@class='device-type ng-binding']")).to_be_visible(timeout= 2000) # 
+                    # wait for "登录验证" to be appear
+                    page.locator("text=登录验证")
+                    
+                    # MFA Verification Appear, if appear do something... else skip...
+                    try:
+                        # wait for "MFA设备类型" appear
+                        page.locator("input[type='radio'][ng-model='model.authenticationType']").check(timeout=5000)
 
-                    # mark checkbox
-                    page.check("//input[@id='promptBindAndEnableCheckbox']")
+                        # mark checkbox
+                        page.check("//input[@id='promptBindAndEnableCheckbox']")
 
-                    # Button click 暂不绑定
-                    page.locator("xpath=//div[@id='promptBindAndEnableCancelBtn']").click(force=True)  
+                        # Button click 暂不绑定
+                        page.locator("xpath=//div[@id='promptBindAndEnableCancelBtn']").click(force=True)  
+                    except:
+                        pass
+                    
+                    # 获取验证码
+                    try:
+                        # Click “邮箱”
+                        page.locator("#email").click(timeout=5000)
+
+                        # delay 0.5second
+                        page.wait_for_timeout(500)
+
+                        # Click “获取验证码”
+                        page.locator("//a[@id='getVerifyCodeBtn']").click(timeout=500, force=True)
+
+                        # Call Gmail APi and get Verification code
+                        service = create_service("credentials.json", "gmail", "v1", ['https://www.googleapis.com/auth/gmail.modify'])
+                        if code := wait_for_huawei_verification_code(service):
+                            print("✅ Verification Code:", code) 
+
+                        # Fill Verification Code
+                        page.fill("//input[@placeholder='6位验证码']", code)
+
+                        # delay 0.5second
+                        page.wait_for_timeout(500)
+
+                        # Press Enter
+                        page.keyboard.press("Enter")
+                    except:
+                        pass
                 except:
                     pass
 
@@ -1962,9 +1973,6 @@ class Huawei(Automation):
                 print(f"{ven_id}= {credit}")
                 # mongdb+id +1
                 m_id += 1
-
-                # hover to menu
-                pyautogui.moveTo(1502, 105)
 
                 # hover to menu
                 page.hover("ul.modules-user-info-user-info-menu-wrapper-user-info-multi-user-info")
@@ -2764,8 +2772,8 @@ Other_Cloud.sms_man()
 
 # Zentao & Noctool
 Zentao_Noctool.zentaowater()
-# Zentao_Noctool.noctool_ChangeAcc()
-# Zentao_Noctool.noctoolwater()
+#Zentao_Noctool.noctool_ChangeAcc()
+Zentao_Noctool.noctoolwater()
 Zentao_Noctool.low_water()
 
 
